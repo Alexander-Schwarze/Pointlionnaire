@@ -35,7 +35,6 @@ val json = Json {
 
 suspend fun main() = try {
     setupLogging()
-
     val twitchClient = setupTwitchBot()
 
     application {
@@ -45,6 +44,8 @@ suspend fun main() = try {
                 logger.info("App shutting down...")
             }
         }
+
+        val questionHandlerInstance = QuestionHandler.instance
 
         Window(
             state = WindowState(size = DpSize(500.dp, 250.dp)),

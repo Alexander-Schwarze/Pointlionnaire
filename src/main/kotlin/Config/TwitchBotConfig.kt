@@ -16,4 +16,5 @@ object TwitchBotConfig {
     val confirmEmote: String = properties.getProperty("confirm_emote")
     val rejectEmote: String = properties.getProperty("reject_emote")
     val explanationEmote: String = properties.getProperty("explanation_emote")
+    val noQuestionPendingText: String = properties.getProperty("no_question_pending_text")
 }

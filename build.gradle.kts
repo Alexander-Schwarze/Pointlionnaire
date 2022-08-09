@@ -3,8 +3,10 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.10"
+    val kotlinVersion = "1.6.10"
+    kotlin("jvm") version kotlinVersion
     id("org.jetbrains.compose") version "1.1.1"
+    kotlin("plugin.serialization") version kotlinVersion
 }
 
 group = "alex.donut.pointlionnaire"
