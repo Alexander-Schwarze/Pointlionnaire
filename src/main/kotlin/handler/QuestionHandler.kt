@@ -1,5 +1,12 @@
+package handler
+
+import Question
+import TwitchBotConfig
+import User
+import json
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.decodeFromString
+import logger
 import java.io.File
 
 class QuestionHandler private constructor(
@@ -15,7 +22,9 @@ class QuestionHandler private constructor(
                 setOf()
             } else {
                 try {
-                    json.decodeFromString<Set<Question>>(questionsFile.readText()).also { currentQuestionsData ->
+                    json.decodeFromString<Set<Question>>(questionsFile.readText()).filter {
+                        it.id >= 0
+                    }.toSet().also { currentQuestionsData ->
                         logger.info("Existing questions file found! Values: ${currentQuestionsData.joinToString(" | ")}")
                     }
                 } catch (e: Exception) {
@@ -27,16 +36,17 @@ class QuestionHandler private constructor(
             if(questions.isEmpty()){
                 // TODO: Remove this as soon as questions can be added via UI
                 logger.error("There are no existing questions. As for version 1.0.0, you cannot set questions in the UI. Thus they need to be added before app start in the json-file.")
-                return@run
+                return@run null
             }
 
             QuestionHandler(questions)
         }
     }
 
-    val currentQuestionText = MutableStateFlow<String?>(TwitchBotConfig.noQuestionPendingText)
+    val emptyQuestion = Question(-1, TwitchBotConfig.noQuestionPendingText, "", false)
+    val currentQuestion = MutableStateFlow(emptyQuestion)
 
-    private var askedQuestions: Set<Question> = setOf()
+    private val askedQuestions = mutableMapOf<Question, /* leader board: */ List<User>>()
 
     fun popNextRandomQuestion(isLast2Questions: Boolean): Question {
         val newQuestion = if(isLast2Questions) {
@@ -48,14 +58,33 @@ class QuestionHandler private constructor(
                 !it.isLast2Questions && it !in askedQuestions
             }
         }.random().also {
-            askedQuestions = askedQuestions + it
-            currentQuestionText.value = it.questionText
+            askedQuestions[it] = listOf()
+            currentQuestion.value = it
         }
 
         return newQuestion
     }
 
+    fun updateCurrentQuestionsLeaderboard(user: User) {
+        val newLeaderboard = (askedQuestions[currentQuestion.value] ?: listOf()).toMutableList()
+
+        if(newLeaderboard.size == 3) {
+            return
+        }
+
+        newLeaderboard += user
+        askedQuestions[currentQuestion.value] = newLeaderboard
+    }
+
+    fun getCurrentLeaderboard(): List<User> {
+        return askedQuestions[currentQuestion.value] ?: listOf()
+    }
+
+    fun checkAnswer(answer: String): Boolean {
+        return answer.trim() == currentQuestion.value.answer
+    }
+
     fun resetCurrentQuestion() {
-        currentQuestionText.value = TwitchBotConfig.noQuestionPendingText
+        currentQuestion.value = emptyQuestion
     }
 }

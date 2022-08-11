@@ -45,8 +45,6 @@ suspend fun main() = try {
             }
         }
 
-        val questionHandlerInstance = QuestionHandler.instance
-
         Window(
             state = WindowState(size = DpSize(500.dp, 250.dp)),
             title = "Pointlionnaire",

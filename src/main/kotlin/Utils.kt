@@ -1,4 +1,5 @@
 import kotlinx.serialization.Serializable
+import org.jetbrains.annotations.Nullable
 import java.io.OutputStream
 
 class MultiOutputStream(private vararg val streams: OutputStream) : OutputStream() {
@@ -28,6 +29,5 @@ data class Question (
 
 data class User (
     val userName: String,
-    val userID: String,
-    var points: Int
+    val userID: String
 )

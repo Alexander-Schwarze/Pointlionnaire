@@ -10,11 +10,11 @@ object TwitchBotConfig {
     val channel: String = properties.getProperty("channel")
     val onlyMods = properties.getProperty("only_mods") == "true"
     val commandPrefix: String = properties.getProperty("command_prefix")
-    val userCooldown = properties.getProperty("user_cooldown_seconds").toInt().seconds
     val leaveEmote: String = properties.getProperty("leave_emote")
     val arriveEmote: String = properties.getProperty("arrive_emote")
-    val confirmEmote: String = properties.getProperty("confirm_emote")
-    val rejectEmote: String = properties.getProperty("reject_emote")
     val explanationEmote: String = properties.getProperty("explanation_emote")
     val noQuestionPendingText: String = properties.getProperty("no_question_pending_text")
+    val maximumRolls = properties.getProperty("maximum_rolls").toInt()
+    val noMoreRerollsText: String = properties.getProperty("no_more_rerolls_text")
+    val ggEmote: String = properties.getProperty("gg_emote")
 }

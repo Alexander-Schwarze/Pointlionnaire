@@ -1,14 +1,13 @@
 package commands
 
 import Command
-import QuestionHandler
 import TwitchBotConfig
+import handler.QuestionHandler
 
 val questionCommand: Command = Command(
     names = listOf("question", "q"),
     handler = {
-        // TODO: Make command display current pending question (and maybe time that is left?)
-        // WHY IS THIS NOT WORKING WTF
-        chat.sendMessage(TwitchBotConfig.channel, "Question is: ${QuestionHandler.instance}")
+        // TODO: Make command maybe display time that is left?
+        chat.sendMessage(TwitchBotConfig.channel, "Question is: ${QuestionHandler.instance?.currentQuestion?.value?.questionText}")
     }
 )
