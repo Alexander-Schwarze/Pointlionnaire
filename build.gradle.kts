@@ -26,6 +26,7 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:1.7.36")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
     implementation("com.github.twitch4j:twitch4j:1.10.0")
+    implementation("com.github.tkuenneth:nativeparameterstoreaccess:0.1.0")
 
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 }

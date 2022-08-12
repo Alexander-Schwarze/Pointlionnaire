@@ -23,8 +23,9 @@ class MultiOutputStream(private vararg val streams: OutputStream) : OutputStream
 data class Question (
     val id: Int,
     val questionText: String,
-    val answer: String = "",
-    val isLast2Questions: Boolean = false
+    val answer: String,
+    val isLast2Questions: Boolean,
+    val isTieBreakerQuestion: Boolean
 )
 
 data class User (

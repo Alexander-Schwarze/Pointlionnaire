@@ -25,6 +25,11 @@ class UserHandler {
         return listOf(sortedList[0].first, sortedList[1].first, sortedList[2].first)
     }
 
+    fun getTieBreakerUsers(): List<User> {
+        val firstValue = leaderBoard.toList().sortedByDescending { it.second }[0].second
+        return leaderBoard.toList().filter { it.second == firstValue }.map { it.first }
+    }
+
     fun setWinner() {
         winner = leaderBoard.toList().sortedByDescending { it.second }[0].first.userID
     }

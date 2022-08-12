@@ -43,26 +43,33 @@ class QuestionHandler private constructor(
         }
     }
 
-    val emptyQuestion = Question(-1, TwitchBotConfig.noQuestionPendingText, "", false)
+    val emptyQuestion = Question(id = -1, questionText = TwitchBotConfig.noQuestionPendingText, answer = "", isLast2Questions = false, isTieBreakerQuestion = false)
     val currentQuestion = MutableStateFlow(emptyQuestion)
 
     private val askedQuestions = mutableMapOf<Question, /* leader board: */ List<User>>()
+    private val askedTieBreakerQuestions = mutableMapOf<Question, /* winner: */ User?>()
 
-    fun popNextRandomQuestion(isLast2Questions: Boolean): Question {
-        val newQuestion = if(isLast2Questions) {
+    fun popRandomQuestion(isLast2Questions: Boolean): Question {
+        return if(isLast2Questions) {
             questions.filter{
-                it.isLast2Questions && it !in askedQuestions
+                it.isLast2Questions && it !in askedQuestions && !it.isTieBreakerQuestion
             }
         } else {
             questions.filter{
-                !it.isLast2Questions && it !in askedQuestions
+                !it.isLast2Questions && it !in askedQuestions && !it.isTieBreakerQuestion
             }
         }.random().also {
             askedQuestions[it] = listOf()
             currentQuestion.value = it
         }
+    }
 
-        return newQuestion
+    fun popRandomTieBreakerQuestion(): Question {
+        return questions.filter {
+            it.isTieBreakerQuestion && it !in askedTieBreakerQuestions
+        }.random().also {
+            askedTieBreakerQuestions[it] = null
+        }
     }
 
     fun updateCurrentQuestionsLeaderboard(user: User) {

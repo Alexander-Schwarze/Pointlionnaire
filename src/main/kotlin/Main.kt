@@ -1,4 +1,5 @@
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -49,6 +50,7 @@ suspend fun main() = try {
             state = WindowState(size = DpSize(500.dp, 250.dp)),
             title = "Pointlionnaire",
             onCloseRequest = ::exitApplication,
+            icon = painterResource("icon.ico"),
             resizable = false
         ) {
             App()
