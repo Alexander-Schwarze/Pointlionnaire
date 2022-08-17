@@ -23,7 +23,8 @@ class MultiOutputStream(private vararg val streams: OutputStream) : OutputStream
 data class Question (
     val id: Int,
     val questionText: String,
-    val answer: String,
+    // TODO: because answers should be to lower case, answers have to be vars so they can be set (i don't know how to do this with a val)
+    var answer: String,
     val isLast2Questions: Boolean,
     val isTieBreakerQuestion: Boolean
 )

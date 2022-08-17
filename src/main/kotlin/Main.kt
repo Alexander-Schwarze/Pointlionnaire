@@ -178,8 +178,10 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
     val questionHandlerInstance = QuestionHandler.instance ?: run {
         return false
     }
+    val durationUntilNextQuestion = TwitchBotConfig.totalIntervalDuration / TwitchBotConfig.amountQuestions - TwitchBotConfig.answerDuration
     backgroundCoroutineScope.launch {
         while (true){
+            // TODO: Comment in the delays
             if(intervalRunning.value){
                 logger.info("Interval running. Amount of asked questions: ${questionHandlerInstance.askedQuestions.size}")
                 if(questionHandlerInstance.askedQuestions.isEmpty()){
@@ -189,13 +191,13 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
                                 "You wanna know, how to participate? ${TwitchBotConfig.amountQuestions} Questions will be asked during the next ${TwitchBotConfig.totalIntervalDuration} and you have per question ${TwitchBotConfig.answerDuration} to answer! ${TwitchBotConfig.explanationEmote}"
                     )
 
-                    delay(10.seconds)
+                    //delay(10.seconds)
 
                     chat.sendMessage(TwitchBotConfig.channel,
                         "You will have ${QuestionHandler.instance.maxAmountTries} tries to get the answer right. Wanna know, how to answer? Type \"${TwitchBotConfig.commandPrefix}${helpCommand.names.first()}\" to see all commands!"
                     )
 
-                    delay(7.seconds)
+                    //delay(10.seconds)
 
                     chat.sendMessage(TwitchBotConfig.channel,
                         "The winner will be announced at the end. They can get a random price by typing \"${TwitchBotConfig.commandPrefix}${redeemCommand.names.first()}\". How cool is that?! ${TwitchBotConfig.ggEmote}"
@@ -205,10 +207,15 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
                 }
 
                 chat.sendMessage(TwitchBotConfig.channel, "Tighten your seatbelts, the question is coming up!")
-                delay(10.seconds)
-                chat.sendMessage(TwitchBotConfig.channel, questionHandlerInstance.popRandomQuestion().questionText)
+                //delay(10.seconds)
+                chat.sendMessage(TwitchBotConfig.channel, questionHandlerInstance.popRandomQuestion().also { logger.info("Current question: ${it.questionText} | Current answer: ${it.answer}") }.questionText)
 
-                delay(TwitchBotConfig.totalIntervalDuration / TwitchBotConfig.amountQuestions)
+                delay(TwitchBotConfig.answerDuration)
+                chat.sendMessage(TwitchBotConfig.channel, "The time is up! ${TwitchBotConfig.timeUpEmote} Next question will be in $durationUntilNextQuestion")
+                logger.info("Answer duration is over. Resetting question")
+                questionHandlerInstance.resetCurrentQuestion()
+
+                delay(durationUntilNextQuestion)
             }
         }
     }

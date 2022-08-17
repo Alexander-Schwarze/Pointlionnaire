@@ -21,4 +21,5 @@ object TwitchBotConfig {
     val totalIntervalDuration = properties.getProperty("total_interval_duration").toDouble().minutes
     val answerDuration = properties.getProperty("answer_duration").toDouble().minutes
     val attentionEmote: String = properties.getProperty("attention_emote")
+    val timeUpEmote: String = properties.getProperty("time_up_emote")
 }

@@ -3,11 +3,15 @@ package handler
 import Question
 import TwitchBotConfig
 import User
+import androidx.compose.ui.text.toLowerCase
 import json
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.decodeFromString
 import logger
 import java.io.File
+import java.util.*
+import java.util.stream.Collectors.toSet
+import kotlin.math.log
 
 class QuestionHandler private constructor(
     private val questions: Set<Question>
@@ -24,6 +28,8 @@ class QuestionHandler private constructor(
                 try {
                     json.decodeFromString<Set<Question>>(questionsFile.readText()).filter {
                         it.id >= 0
+                    }.onEach {
+                        it.answer = it.answer.lowercase(Locale.getDefault())
                     }.toSet().also { currentQuestionsData ->
                         logger.info("Existing questions file found! Values: ${currentQuestionsData.joinToString(" | ")}")
                     }
@@ -96,6 +102,7 @@ class QuestionHandler private constructor(
         }
 
         newLeaderboard += user
+        logger.info("Leaderboard got updated. New leaderboard: ${newLeaderboard.joinToString(" | ")}")
         askedQuestions[currentQuestion.value] = newLeaderboard
     }
 
@@ -105,6 +112,7 @@ class QuestionHandler private constructor(
 
     fun checkAnswer(answer: String, user: User): Boolean {
         return if(amountTriesCurrentQuestionPerUser[user] == maxAmountTries){
+            logger.info("User ${user.userName} has exceeded their tries")
             false
         } else {
             if(amountTriesCurrentQuestionPerUser[user] == null) {
