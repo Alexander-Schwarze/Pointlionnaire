@@ -1,6 +1,6 @@
 import java.io.File
 import java.util.*
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.minutes
 
 object TwitchBotConfig {
     private val properties = Properties().apply {
@@ -17,4 +17,8 @@ object TwitchBotConfig {
     val maximumRolls = properties.getProperty("maximum_rolls").toInt()
     val noMoreRerollsText: String = properties.getProperty("no_more_rerolls_text")
     val ggEmote: String = properties.getProperty("gg_emote")
+    val amountQuestions = properties.getProperty("amount_questions").toInt()
+    val totalIntervalDuration = properties.getProperty("total_interval_duration").toDouble().minutes
+    val answerDuration = properties.getProperty("answer_duration").toDouble().minutes
+    val attentionEmote: String = properties.getProperty("attention_emote")
 }

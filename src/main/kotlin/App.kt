@@ -77,7 +77,7 @@ fun App() {
             ) {
                 Button(
                     onClick = {
-
+                        startOrStopInterval()
                     },
                     modifier = Modifier
                         .fillMaxWidth()

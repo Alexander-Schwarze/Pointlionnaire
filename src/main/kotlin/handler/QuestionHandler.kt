@@ -33,9 +33,20 @@ class QuestionHandler private constructor(
                 }
             }
 
-            if(questions.isEmpty()){
+            if(
+                questions.filter { !it.isTieBreakerQuestion }.size < TwitchBotConfig.amountQuestions ||
+                questions.filter { !it.isLast2Questions && !it.isTieBreakerQuestion }.size < TwitchBotConfig.amountQuestions - 2 ||
+                questions.filter { it.isLast2Questions && !it.isTieBreakerQuestion }.size < 2 ||
+                questions.none { it.isTieBreakerQuestion }
+            ){
                 // TODO: Remove this as soon as questions can be added via UI
-                logger.error("There are no existing questions. As for version 1.0.0, you cannot set questions in the UI. Thus they need to be added before app start in the json-file.")
+                logger.error("There was an error with given questions. As for version 1.0.0, you cannot set questions in the UI. Thus they need to be added before app start in the json-file.")
+                logger.info("You need: " +
+                        "At least ${TwitchBotConfig.amountQuestions} total questions who are no tiebreaker questions. " +
+                        "At least ${TwitchBotConfig.amountQuestions - 2} questions which are neither tiebreaker nor last 2 questions. " +
+                        "At least 2 questions which are last 2 questions and no tiebreaker. " +
+                        "At least 1 tiebreaker question."
+                )
                 return@run null
             }
 
@@ -43,21 +54,26 @@ class QuestionHandler private constructor(
         }
     }
 
+    val maxAmountTries = 3
+
     val emptyQuestion = Question(id = -1, questionText = TwitchBotConfig.noQuestionPendingText, answer = "", isLast2Questions = false, isTieBreakerQuestion = false)
     val currentQuestion = MutableStateFlow(emptyQuestion)
 
-    private val askedQuestions = mutableMapOf<Question, /* leader board: */ List<User>>()
+    val askedQuestions = mutableMapOf<Question, /* leader board: */ List<User>>()
+    private val amountTriesCurrentQuestionPerUser = mutableMapOf<User, /* amount tries: */ Int>()
     private val askedTieBreakerQuestions = mutableMapOf<Question, /* winner: */ User?>()
 
-    fun popRandomQuestion(isLast2Questions: Boolean): Question {
-        return if(isLast2Questions) {
+    fun popRandomQuestion(): Question {
+        return if(askedQuestions.size >= TwitchBotConfig.amountQuestions - 2) {
             questions.filter{
-                it.isLast2Questions && it !in askedQuestions && !it.isTieBreakerQuestion
+                it.isLast2Questions
             }
         } else {
             questions.filter{
-                !it.isLast2Questions && it !in askedQuestions && !it.isTieBreakerQuestion
+                !it.isLast2Questions
             }
+        }.filter {
+            it !in askedQuestions && !it.isTieBreakerQuestion
         }.random().also {
             askedQuestions[it] = listOf()
             currentQuestion.value = it
@@ -87,8 +103,19 @@ class QuestionHandler private constructor(
         return askedQuestions[currentQuestion.value] ?: listOf()
     }
 
-    fun checkAnswer(answer: String): Boolean {
-        return answer.trim() == currentQuestion.value.answer
+    fun checkAnswer(answer: String, user: User): Boolean {
+        return if(amountTriesCurrentQuestionPerUser[user] == maxAmountTries){
+            false
+        } else {
+            if(amountTriesCurrentQuestionPerUser[user] == null) {
+                amountTriesCurrentQuestionPerUser[user] = 1
+            } else {
+                amountTriesCurrentQuestionPerUser[user] = amountTriesCurrentQuestionPerUser[user]!! + 1
+            }
+            (answer.trim() == currentQuestion.value.answer).also {
+                logger.info("User ${user.userName} answered the question, solution was: $it")
+            }
+        }
     }
 
     fun resetCurrentQuestion() {
