@@ -14,6 +14,7 @@ import com.github.twitch4j.common.enums.CommandPermission
 import commands.helpCommand
 import commands.redeemCommand
 import handler.QuestionHandler
+import handler.UserHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -46,8 +47,8 @@ suspend fun main() = try {
     setupLogging()
     val twitchClient = setupTwitchBot()
     if(!intervalHandler(twitchClient)){
-        JOptionPane.showMessageDialog(null, "Questions are not properly setup. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
-        logger.error("Questions are not properly setup. Check the log for more infos!")
+        JOptionPane.showMessageDialog(null, "Error with starting the interval. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
+        logger.error("Error with starting the interval. Check the log for more infos!")
         exitProcess(0)
     }
 
@@ -176,9 +177,21 @@ fun startOrStopInterval(){
 fun intervalHandler(twitchClient: TwitchClient): Boolean {
     val chat = twitchClient.chat
     val questionHandlerInstance = QuestionHandler.instance ?: run {
+        logger.error("question handler instance is null. Aborting...")
         return false
     }
-    val durationUntilNextQuestion = TwitchBotConfig.totalIntervalDuration / TwitchBotConfig.amountQuestions - TwitchBotConfig.answerDuration
+    val delayBeforeQuestion = 10.seconds
+    val durationUntilNextQuestion = TwitchBotConfig.totalIntervalDuration / TwitchBotConfig.amountQuestions - TwitchBotConfig.answerDuration - delayBeforeQuestion
+    if(durationUntilNextQuestion <= TwitchBotConfig.answerDuration){
+        logger.error("durationUntilNextQuestion is smaller than answer duration. Aborting...")
+        return false
+    }
+    val points = try {
+        mapOf<Int, Int>(0 to TwitchBotConfig.pointsForTop3[0], 1 to TwitchBotConfig.pointsForTop3[1], 2 to TwitchBotConfig.pointsForTop3[2])
+    } catch (e: Exception){
+        return false
+    }
+
     backgroundCoroutineScope.launch {
         while (true){
             // TODO: Comment in the delays
@@ -207,17 +220,38 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
                 }
 
                 chat.sendMessage(TwitchBotConfig.channel, "Tighten your seatbelts, the question is coming up!")
-                //delay(10.seconds)
+                //delay(delayBeforeQuestion)
                 chat.sendMessage(TwitchBotConfig.channel, questionHandlerInstance.popRandomQuestion().also { logger.info("Current question: ${it.questionText} | Current answer: ${it.answer}") }.questionText)
 
                 delay(TwitchBotConfig.answerDuration)
                 chat.sendMessage(TwitchBotConfig.channel, "The time is up! ${TwitchBotConfig.timeUpEmote} Next question will be in $durationUntilNextQuestion")
-                logger.info("Answer duration is over. Resetting question")
+                logger.info("Answer duration is over")
+
+                logger.info("Updating leaderboard...")
+                var i = 0
+                questionHandlerInstance.getCurrentLeaderboard().forEach {
+                    points[i]?.let { it1 ->
+                        UserHandler.updateLeaderBoard(it,
+                            if(questionHandlerInstance.isLastTwoQuestions()){
+                                it1 * 2
+                            } else {
+                                it1
+                            }
+                        )
+                    }
+                    i++
+                }
+
+                logger.info("Resetting question")
                 questionHandlerInstance.resetCurrentQuestion()
 
+                if(questionHandlerInstance.askedQuestions.size == TwitchBotConfig.amountQuestions){
+                    break
+                }
                 delay(durationUntilNextQuestion)
             }
         }
+        // TODO: Tiebreaker and winner handling
     }
 
     return true

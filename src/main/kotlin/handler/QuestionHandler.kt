@@ -8,6 +8,7 @@ import json
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.decodeFromString
 import logger
+import org.checkerframework.checker.units.qual.m
 import java.io.File
 import java.util.*
 import java.util.stream.Collectors.toSet
@@ -70,7 +71,7 @@ class QuestionHandler private constructor(
     private val askedTieBreakerQuestions = mutableMapOf<Question, /* winner: */ User?>()
 
     fun popRandomQuestion(): Question {
-        return if(askedQuestions.size >= TwitchBotConfig.amountQuestions - 2) {
+        return if(isLastTwoQuestions()) {
             questions.filter{
                 it.isLast2Questions
             }
@@ -128,5 +129,10 @@ class QuestionHandler private constructor(
 
     fun resetCurrentQuestion() {
         currentQuestion.value = emptyQuestion
+        amountTriesCurrentQuestionPerUser.clear()
+    }
+
+    fun isLastTwoQuestions(): Boolean {
+        return askedQuestions.size >= TwitchBotConfig.amountQuestions - 2
     }
 }

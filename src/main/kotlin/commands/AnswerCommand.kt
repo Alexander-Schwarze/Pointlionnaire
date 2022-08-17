@@ -11,8 +11,10 @@ val answerCommand: Command = Command(
     handler = {
         val answer = it.joinToString(" ").lowercase(Locale.getDefault())
 
-        if(QuestionHandler.instance?.checkAnswer(answer, User(user.name, user.id)) == true && QuestionHandler.instance.currentQuestion.value != QuestionHandler.instance.emptyQuestion){
-            QuestionHandler.instance.updateCurrentQuestionsLeaderboard(User(user.name, user.id))
+        if(QuestionHandler.instance?.currentQuestion?.value != QuestionHandler.instance?.emptyQuestion){
+            if(QuestionHandler.instance?.checkAnswer(answer, User(user.name, user.id)) == true) {
+                QuestionHandler.instance.updateCurrentQuestionsLeaderboard(User(user.name, user.id))
+            }
         }
 
     }

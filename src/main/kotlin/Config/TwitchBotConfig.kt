@@ -22,4 +22,5 @@ object TwitchBotConfig {
     val answerDuration = properties.getProperty("answer_duration").toDouble().minutes
     val attentionEmote: String = properties.getProperty("attention_emote")
     val timeUpEmote: String = properties.getProperty("time_up_emote")
+    val pointsForTop3: List<Int> = properties.getProperty("points_for_top_3").split(",").map{ it.toInt() }
 }
