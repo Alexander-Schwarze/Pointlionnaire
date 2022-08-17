@@ -98,7 +98,7 @@ class QuestionHandler private constructor(
     fun updateCurrentQuestionsLeaderboard(user: User) {
         val newLeaderboard = (askedQuestions[currentQuestion.value] ?: listOf()).toMutableList()
 
-        if(newLeaderboard.size == 3) {
+        if(newLeaderboard.size == 3 || user in newLeaderboard) {
             return
         }
 
