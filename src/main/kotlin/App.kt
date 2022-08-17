@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.github.tkuenneth.nativeparameterstoreaccess.NativeParameterStoreAccess
 import com.github.tkuenneth.nativeparameterstoreaccess.WindowsRegistry
+import handler.QuestionHandler
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
 
@@ -49,7 +50,7 @@ fun App() {
             lightColorPalette
         }
     ) {
-        val coroutineScope = rememberCoroutineScope()
+        // val coroutineScope = rememberCoroutineScope()
 
         Column(
             modifier = Modifier
@@ -83,7 +84,11 @@ fun App() {
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = "Start/Stop"
+                        if (intervalRunning.value) {
+                            "Stop"
+                        } else {
+                            "Start"
+                        }
                     )
                 }
             }
