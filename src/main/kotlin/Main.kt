@@ -1,4 +1,5 @@
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
@@ -25,11 +26,11 @@ import org.slf4j.LoggerFactory
 import java.io.*
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.time.Instant
 import java.time.format.DateTimeFormatterBuilder
 import javax.swing.JOptionPane
 import kotlin.system.exitProcess
 import java.time.Duration
+import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -42,6 +43,7 @@ val json = Json {
 }
 
 var intervalRunning = mutableStateOf(false)
+var timestamptUntilNextAction: MutableState<Instant> = mutableStateOf(Instant.now())
 
 suspend fun main() = try {
     setupLogging()
@@ -187,7 +189,7 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
         return false
     }
     val points = try {
-        mapOf<Int, Int>(0 to TwitchBotConfig.pointsForTop3[0], 1 to TwitchBotConfig.pointsForTop3[1], 2 to TwitchBotConfig.pointsForTop3[2])
+        mapOf(0 to TwitchBotConfig.pointsForTop3[0], 1 to TwitchBotConfig.pointsForTop3[1], 2 to TwitchBotConfig.pointsForTop3[2])
     } catch (e: Exception){
         return false
     }

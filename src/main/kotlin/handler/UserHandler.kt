@@ -24,7 +24,19 @@ class UserHandler {
 
         fun getTop3Users(): List<User> {
             val sortedList = leaderBoard.toList().sortedByDescending { it.second }
-            return listOf(sortedList[0].first, sortedList[1].first, sortedList[2].first)
+            return if(sortedList.isEmpty()) {
+                listOf()
+            } else {
+                listOf(
+                    sortedList[0].first,
+                    try{
+                        sortedList[1].first
+                    } catch (e: Exception) {User("None", "-1")},
+                    try{
+                        sortedList[2].first
+                    } catch (e: Exception) {User("None", "-1")}
+                )
+            }
         }
 
         fun getTieBreakerUsers(): List<User> {

@@ -2,14 +2,19 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.github.tkuenneth.nativeparameterstoreaccess.NativeParameterStoreAccess
 import com.github.tkuenneth.nativeparameterstoreaccess.WindowsRegistry
 import handler.QuestionHandler
+import handler.UserHandler
 import kotlinx.coroutines.delay
+import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
+import kotlin.concurrent.timer
+import kotlin.time.Duration.Companion.milliseconds
 
 val lightColorPalette = lightColors(
     primary = Color(0xff4466ff),
@@ -43,6 +48,37 @@ fun App() {
         }
     }
 
+    var leaderBoard by remember { mutableStateOf("No leaderboard available yet") }
+    var currentQuestion by remember { mutableStateOf("") }
+
+    DisposableEffect(Unit) {
+        val timer = timer(
+            period = 1.seconds.inWholeMilliseconds,
+            daemon = true
+        ) {
+            if(UserHandler.getTop3Users().isNotEmpty()){
+                UserHandler.getTop3Users().run {
+                    leaderBoard = "First: ${this[0].userName}\nSecond: ${this[1].userName}\nThird: ${this[2].userName}"
+                }
+            }
+
+            val questionText = QuestionHandler.instance?.currentQuestion?.value?.questionText
+            currentQuestion = "Current Question: $questionText\n" +
+                    "Answer: ${QuestionHandler.instance?.currentQuestion?.value?.answer}\n" +
+                    "Time left until " +
+                    if(questionText != QuestionHandler.instance?.emptyQuestion?.questionText){
+                        // TODO: Timers
+                        "answering ends: "
+                    } else {
+                        "next question: "
+                    }
+        }
+
+        onDispose {
+            timer.cancel()
+        }
+    }
+
     MaterialTheme(
         colors = if (isInDarkMode) {
             darkColorPalette
@@ -59,16 +95,16 @@ fun App() {
         ) {
             Row() {
                 Text(
-                    text = "Current Question: None\nTime left until end/next: ?"
+                    text = currentQuestion
                 )
             }
 
             Row(
                 modifier = Modifier
-                    .padding(top = 8.dp)
+                    .padding(top = 4.dp)
             ) {
                 Text(
-                    text = "Current Leaderboard:\nFirst:\nSecond:\nThird:"
+                    text = leaderBoard
                 )
             }
 

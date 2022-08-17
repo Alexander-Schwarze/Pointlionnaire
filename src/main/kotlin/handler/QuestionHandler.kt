@@ -63,7 +63,7 @@ class QuestionHandler private constructor(
 
     val maxAmountTries = 3
 
-    val emptyQuestion = Question(id = -1, questionText = TwitchBotConfig.noQuestionPendingText, answer = "", isLast2Questions = false, isTieBreakerQuestion = false)
+    val emptyQuestion = Question(id = -1, questionText = TwitchBotConfig.noQuestionPendingText, answer = "None", isLast2Questions = false, isTieBreakerQuestion = false)
     val currentQuestion = MutableStateFlow(emptyQuestion)
 
     val askedQuestions = mutableMapOf<Question, /* leader board: */ List<User>>()
