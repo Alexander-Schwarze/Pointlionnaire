@@ -23,4 +23,7 @@ object TwitchBotConfig {
     val attentionEmote: String = properties.getProperty("attention_emote")
     val timeUpEmote: String = properties.getProperty("time_up_emote")
     val pointsForTop3: List<Int> = properties.getProperty("points_for_top_3").split(",").map{ it.toInt() }
+    val gameUpEmote: String = properties.getProperty("game_up_emote")
+    val noWinnerEmote: String = properties.getProperty("no_winner_emote")
+    val tieEmote: String = properties.getProperty("tie_emote")
 }

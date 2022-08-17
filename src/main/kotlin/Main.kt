@@ -226,7 +226,7 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
                 chat.sendMessage(TwitchBotConfig.channel, questionHandlerInstance.popRandomQuestion().also { logger.info("Current question: ${it.questionText} | Current answer: ${it.answer}") }.questionText)
 
                 delay(TwitchBotConfig.answerDuration)
-                chat.sendMessage(TwitchBotConfig.channel, "The time is up! ${TwitchBotConfig.timeUpEmote} Next question will be in $durationUntilNextQuestion")
+                chat.sendMessage(TwitchBotConfig.channel, "The time is up! ${TwitchBotConfig.timeUpEmote}")
                 logger.info("Answer duration is over")
 
                 logger.info("Updating leaderboard...")
@@ -250,10 +250,54 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
                 if(questionHandlerInstance.askedQuestions.size == TwitchBotConfig.amountQuestions){
                     break
                 }
+
+                chat.sendMessage(TwitchBotConfig.channel, "Next question will be in $durationUntilNextQuestion")
                 delay(durationUntilNextQuestion)
             }
         }
-        // TODO: Tiebreaker and winner handling
+
+        if(UserHandler.getTieBreakerUsers().size > 1) {
+
+            chat.sendMessage(
+                TwitchBotConfig.channel,
+                "Oh oh! Looks like we have a tie ${TwitchBotConfig.tieEmote}"
+            )
+
+            // TODO: Tie breaker handling
+        }
+
+        chat.sendMessage(
+            TwitchBotConfig.channel,
+            "The game is over! ${TwitchBotConfig.gameUpEmote}"
+        )
+        UserHandler.setWinner()
+        delay(5.seconds)
+        if(UserHandler.winner != null) {
+            chat.sendMessage(
+                TwitchBotConfig.channel,
+                "The results are in and the winner is: ${UserHandler.winner?.userName} ${TwitchBotConfig.ggEmote}"
+            )
+            delay(4.seconds)
+
+            val leaderBoard = UserHandler.getTop3Users()
+            chat.sendMessage(
+                TwitchBotConfig.channel,
+                "The Top 3 leaderboard: First: ${leaderBoard[0].userName}, Second: ${leaderBoard[1].userName}, Third: ${leaderBoard[2].userName}"
+            )
+
+            delay(5.seconds)
+
+            chat.sendMessage(
+                TwitchBotConfig.channel,
+                "${UserHandler.winner!!.userName}, you now have the opportunity to redeem a random prize by using ${TwitchBotConfig.commandPrefix}${redeemCommand.names.first()}. You can do this until I get shut down!"
+            )
+        } else {
+            chat.sendMessage(
+                TwitchBotConfig.channel,
+                "Imagine getting a single answer right... couldn't be you guys ${TwitchBotConfig.noWinnerEmote}"
+            )
+        }
+
     }
 
     return true

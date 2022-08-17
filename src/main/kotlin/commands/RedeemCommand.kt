@@ -8,7 +8,7 @@ import handler.UserHandler
 val redeemCommand: Command = Command(
     names = listOf("redeem", "r"),
     handler = {
-        if(UserHandler.winner != user.id) {
+        if(UserHandler.winner?.userID != user.id) {
             return@Command
         }
 
@@ -16,7 +16,7 @@ val redeemCommand: Command = Command(
         if(redeem == null) {
             chat.sendMessage(TwitchBotConfig.channel, "${TwitchBotConfig.noMoreRerollsText} ${TwitchBotConfig.explanationEmote}")
         } else {
-            chat.sendMessage(TwitchBotConfig.channel, "Your redeem is: $redeem ${TwitchBotConfig.ggEmote}")
+            chat.sendMessage(TwitchBotConfig.channel, "Your redeem is: $redeem ${TwitchBotConfig.ggEmote}. If you don't like it, you can try another time!")
         }
     }
 )

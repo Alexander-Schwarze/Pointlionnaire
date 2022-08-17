@@ -7,7 +7,7 @@ class UserHandler {
 
     companion object {
         private val leaderBoard = mutableMapOf<User, /* points: */ Int>()
-        var winner: String? = null // holds the ID of the user that had the most points
+        var winner: User? = null // holds the ID of the user that had the most points
             private set
 
         fun updateLeaderBoard(user: User, points: Int) {
@@ -34,18 +34,27 @@ class UserHandler {
                     } catch (e: Exception) {User("None", "-1")},
                     try{
                         sortedList[2].first
-                    } catch (e: Exception) {User("None", "-1")}
+                    } catch (e: Exception) {User("None", "-2")}
                 )
             }
         }
 
         fun getTieBreakerUsers(): List<User> {
-            val firstValue = leaderBoard.toList().sortedByDescending { it.second }[0].second
-            return leaderBoard.toList().filter { it.second == firstValue }.map { it.first }
+            return if(leaderBoard.toList().isEmpty()) {
+                listOf()
+            } else {
+                leaderBoard.toList().filter {
+                    it.second == leaderBoard.toList().sortedByDescending { userPoints -> userPoints.second }[0].second
+                }.map { it.first }
+            }
         }
 
         fun setWinner() {
-            winner = leaderBoard.toList().sortedByDescending { it.second }[0].first.userID
+            winner = if(leaderBoard.toList().isEmpty()) {
+                null
+            } else {
+                leaderBoard.toList().sortedByDescending { it.second }[0].first
+            }
         }
     }
 }
