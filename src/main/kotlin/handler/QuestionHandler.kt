@@ -132,11 +132,12 @@ class QuestionHandler private constructor(
     }
 
     fun resetCurrentQuestion() {
+        logger.info("Resetting question")
         currentQuestion.value = emptyQuestion
         amountTriesCurrentQuestionPerUser.clear()
     }
 
-    fun isLastTwoQuestions(): Boolean {
+    private fun isLastTwoQuestions(): Boolean {
         return askedQuestions.size >= TwitchBotConfig.amountQuestions - 2
     }
 }

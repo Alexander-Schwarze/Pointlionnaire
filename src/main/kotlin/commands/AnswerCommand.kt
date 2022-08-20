@@ -16,6 +16,7 @@ val answerCommand: Command = Command(
             if(UserHandler.isTieBreaker() && User(user.name, user.id) !in UserHandler.tieBreakUsers){
                 return@Command
             }
+
             if(QuestionHandler.instance?.checkAnswer(answer, User(user.name, user.id)) == true) {
                 QuestionHandler.instance.updateCurrentQuestionsLeaderboard(User(user.name, user.id))
             }
