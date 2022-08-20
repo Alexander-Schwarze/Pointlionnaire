@@ -16,10 +16,7 @@ import commands.helpCommand
 import commands.redeemCommand
 import handler.QuestionHandler
 import handler.UserHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -218,8 +215,16 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
                     logger.info("Interval is starting. Sending the info messages.")
                     chat.sendMessage(
                         TwitchBotConfig.channel,
-                        "${TwitchBotConfig.attentionEmote} Attention, Attention ${TwitchBotConfig.attentionEmote} The Questions are about to begin! " +
-                                "You wanna know, how to participate? ${TwitchBotConfig.amountQuestions} Questions will be asked during the next ${TwitchBotConfig.totalIntervalDuration} and you have per question ${TwitchBotConfig.answerDuration} to answer! ${TwitchBotConfig.explanationEmote}"
+                        "${TwitchBotConfig.attentionEmote} Attention, Attention ${TwitchBotConfig.attentionEmote} The Quiz show is about to begin! " +
+                                "You wanna know how to participate? ${TwitchBotConfig.amountQuestions} " +
+                                "Question".run {
+                                    if(TwitchBotConfig.amountQuestions > 1){
+                                        this + "s"
+                                    } else {
+                                        this
+                                    }
+                                } +
+                                " will be asked during the next ${TwitchBotConfig.totalIntervalDuration} and you have per question ${TwitchBotConfig.answerDuration} to answer! ${TwitchBotConfig.explanationEmote}"
                     )
 
                     delay(10.seconds)
@@ -261,18 +266,16 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
                 logger.info("Answer duration is over")
 
                 logger.info("Updating leaderboard")
-                var i = 0
-                questionHandlerInstance.getCurrentLeaderboard().forEach {
-                    points[i]?.let { it1 ->
-                        UserHandler.updateLeaderBoard(it,
+                questionHandlerInstance.getCurrentLeaderboard().forEachIndexed { index, user ->
+                    points[index]?.let { currentPoints ->
+                        UserHandler.updateLeaderBoard(user, currentPoints.run {
                             if(currentQuestion.isLast2Questions){
-                                it1 * 2
+                                this * 2
                             } else {
-                                it1
+                                this
                             }
-                        )
+                        })
                     }
-                    i++
                 }
 
                 questionHandlerInstance.resetCurrentQuestion()
@@ -326,12 +329,10 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
                 logger.info("Answer duration is over")
 
                 logger.info("Updating leaderboard...")
-                var i = 0
-                questionHandlerInstance.getCurrentLeaderboard().forEach {
-                    points[i]?.let { it1 ->
-                        UserHandler.updateLeaderBoard(it, it1)
+                questionHandlerInstance.getCurrentLeaderboard().forEachIndexed { index, user ->
+                    points[index]?.let { currentPoints ->
+                        UserHandler.updateLeaderBoard(user, currentPoints)
                     }
-                    i++
                 }
 
                 if(questionHandlerInstance.getCurrentLeaderboard().isNotEmpty()){
