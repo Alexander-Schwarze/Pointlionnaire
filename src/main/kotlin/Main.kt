@@ -188,6 +188,8 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
         logger.error("durationUntilNextQuestion is smaller than answer duration. Aborting...")
         return false
     }
+
+    val durationUntilNextTieQuestion = TwitchBotConfig.tiebreakerAnswerDuration * 2
     val points = try {
         mapOf(0 to TwitchBotConfig.pointsForTop3[0], 1 to TwitchBotConfig.pointsForTop3[1], 2 to TwitchBotConfig.pointsForTop3[2])
     } catch (e: Exception){
@@ -196,7 +198,6 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
 
     backgroundCoroutineScope.launch {
         while (true){
-            // TODO: Comment in the delays
             if(intervalRunning.value){
                 logger.info("Interval running. Amount of asked questions: ${questionHandlerInstance.askedQuestions.size}")
                 if(questionHandlerInstance.askedQuestions.isEmpty()){
@@ -206,24 +207,26 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
                                 "You wanna know, how to participate? ${TwitchBotConfig.amountQuestions} Questions will be asked during the next ${TwitchBotConfig.totalIntervalDuration} and you have per question ${TwitchBotConfig.answerDuration} to answer! ${TwitchBotConfig.explanationEmote}"
                     )
 
-                    //delay(10.seconds)
+                    delay(10.seconds)
 
                     chat.sendMessage(TwitchBotConfig.channel,
                         "You will have ${QuestionHandler.instance.maxAmountTries} tries to get the answer right. Wanna know, how to answer? Type \"${TwitchBotConfig.commandPrefix}${helpCommand.names.first()}\" to see all commands!"
                     )
 
-                    //delay(10.seconds)
+                    delay(10.seconds)
 
                     chat.sendMessage(TwitchBotConfig.channel,
                         "The winner will be announced at the end. They can get a random price by typing \"${TwitchBotConfig.commandPrefix}${redeemCommand.names.first()}\". How cool is that?! ${TwitchBotConfig.ggEmote}"
                     )
 
-                    //delay(30.seconds)
+                    delay(30.seconds)
                 }
 
                 chat.sendMessage(TwitchBotConfig.channel, "Tighten your seatbelts, the question is coming up!")
-                //delay(delayBeforeQuestion)
-                chat.sendMessage(TwitchBotConfig.channel, questionHandlerInstance.popRandomQuestion().also { logger.info("Current question: ${it.questionText} | Current answer: ${it.answer}") }.questionText)
+                delay(delayBeforeQuestion)
+
+                val currentQuestion = questionHandlerInstance.popRandomQuestion().also { logger.info("Current question: ${it.questionText} | Current answer: ${it.answer}") }
+                chat.sendMessage(TwitchBotConfig.channel, currentQuestion.questionText)
 
                 delay(TwitchBotConfig.answerDuration)
                 chat.sendMessage(TwitchBotConfig.channel, "The time is up! ${TwitchBotConfig.timeUpEmote}")
@@ -234,7 +237,7 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
                 questionHandlerInstance.getCurrentLeaderboard().forEach {
                     points[i]?.let { it1 ->
                         UserHandler.updateLeaderBoard(it,
-                            if(questionHandlerInstance.isLastTwoQuestions()){
+                            if(currentQuestion.isLast2Questions){
                                 it1 * 2
                             } else {
                                 it1
@@ -256,14 +259,52 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
             }
         }
 
-        if(UserHandler.getTieBreakerUsers().size > 1) {
+        if(UserHandler.getTieBreakerUser().size > 1) {
 
+            UserHandler.setTieBreakerUser()
             chat.sendMessage(
                 TwitchBotConfig.channel,
                 "Oh oh! Looks like we have a tie ${TwitchBotConfig.tieEmote}"
             )
 
-            // TODO: Tie breaker handling
+            delay(10.seconds)
+            chat.sendMessage(
+                TwitchBotConfig.channel,
+                "The users ${UserHandler.tieBreakUsers.map { it.userName }.let { users ->
+                listOf(users.dropLast(1).joinToString(), users.last()).filter { it.isNotBlank() }.joinToString(" and ")}
+                } are tied first place and will have to answer tie breaker questions. Whoever is the quickest to answer first wins!"
+            )
+
+            while (true){
+                chat.sendMessage(TwitchBotConfig.channel, "Get Ready! The question is coming up!")
+                delay(30.seconds)
+
+                chat.sendMessage(TwitchBotConfig.channel, questionHandlerInstance.popRandomTieBreakerQuestion().also { logger.info("Current question: ${it.questionText} | Current answer: ${it.answer}") }.questionText)
+
+                delay(TwitchBotConfig.tiebreakerAnswerDuration)
+
+                chat.sendMessage(TwitchBotConfig.channel, "The time is up! ${TwitchBotConfig.timeUpEmote}")
+                logger.info("Answer duration is over")
+
+                logger.info("Updating leaderboard...")
+                var i = 0
+                questionHandlerInstance.getCurrentLeaderboard().forEach {
+                    points[i]?.let { it1 ->
+                        UserHandler.updateLeaderBoard(it, it1)
+                    }
+                    i++
+                }
+
+                if(questionHandlerInstance.getCurrentLeaderboard().isNotEmpty()){
+                    break
+                }
+            }
+
+            logger.info("Resetting question")
+            questionHandlerInstance.resetCurrentQuestion()
+
+            chat.sendMessage(TwitchBotConfig.channel, "Next question will be in $durationUntilNextTieQuestion")
+            delay(durationUntilNextTieQuestion)
         }
 
         chat.sendMessage(

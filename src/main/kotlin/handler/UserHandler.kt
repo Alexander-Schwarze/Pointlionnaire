@@ -9,6 +9,7 @@ class UserHandler {
         private val leaderBoard = mutableMapOf<User, /* points: */ Int>()
         var winner: User? = null // holds the ID of the user that had the most points
             private set
+        val tieBreakUsers = mutableListOf<User>()
 
         fun updateLeaderBoard(user: User, points: Int) {
             val currentPoints = leaderBoard[user]
@@ -39,7 +40,7 @@ class UserHandler {
             }
         }
 
-        fun getTieBreakerUsers(): List<User> {
+        fun getTieBreakerUser(): List<User> {
             return if(leaderBoard.toList().isEmpty()) {
                 listOf()
             } else {
@@ -47,6 +48,14 @@ class UserHandler {
                     it.second == leaderBoard.toList().sortedByDescending { userPoints -> userPoints.second }[0].second
                 }.map { it.first }
             }
+        }
+
+        fun setTieBreakerUser() {
+            tieBreakUsers.addAll(getTieBreakerUser())
+        }
+
+        fun isTieBreaker(): Boolean {
+            return tieBreakUsers.isNotEmpty()
         }
 
         fun setWinner() {

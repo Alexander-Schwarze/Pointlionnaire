@@ -68,7 +68,6 @@ class QuestionHandler private constructor(
 
     val askedQuestions = mutableMapOf<Question, /* leader board: */ List<User>>()
     private val amountTriesCurrentQuestionPerUser = mutableMapOf<User, /* amount tries: */ Int>()
-    private val askedTieBreakerQuestions = mutableMapOf<Question, /* winner: */ User?>()
 
     fun popRandomQuestion(): Question {
         return if(isLastTwoQuestions()) {
@@ -88,10 +87,15 @@ class QuestionHandler private constructor(
     }
 
     fun popRandomTieBreakerQuestion(): Question {
+        if(questions.none { it !in askedQuestions && it.isTieBreakerQuestion }) {
+            askedQuestions.clear()
+        }
+
         return questions.filter {
-            it.isTieBreakerQuestion && it !in askedTieBreakerQuestions
+            it.isTieBreakerQuestion && it !in askedQuestions
         }.random().also {
-            askedTieBreakerQuestions[it] = null
+            askedQuestions[it] = listOf()
+            currentQuestion.value = it
         }
     }
 

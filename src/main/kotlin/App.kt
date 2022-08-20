@@ -2,7 +2,6 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -11,10 +10,8 @@ import com.github.tkuenneth.nativeparameterstoreaccess.WindowsRegistry
 import handler.QuestionHandler
 import handler.UserHandler
 import kotlinx.coroutines.delay
-import java.time.Instant
-import kotlin.time.Duration.Companion.seconds
 import kotlin.concurrent.timer
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 val lightColorPalette = lightColors(
     primary = Color(0xff4466ff),
