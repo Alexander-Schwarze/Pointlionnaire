@@ -13,6 +13,8 @@ object TwitchBotConfig {
     val leaveEmote: String = properties.getProperty("leave_emote")
     val arriveEmote: String = properties.getProperty("arrive_emote")
     val explanationEmote: String = properties.getProperty("explanation_emote")
+    val blacklistedUsers: List<String> = properties.getProperty("blacklisted_users").lowercase(Locale.getDefault()).split(",")
+    val blacklistEmote: String = properties.getProperty("blacklist_emote")
     val noQuestionPendingText: String = properties.getProperty("no_question_pending_text")
     val maximumRolls = properties.getProperty("maximum_rolls").toInt()
     val noMoreRerollsText: String = properties.getProperty("no_more_rerolls_text")

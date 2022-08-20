@@ -137,6 +137,17 @@ private suspend fun setupTwitchBot(): TwitchClient {
             return@onEvent
         }
 
+        if(messageEvent.user.name in TwitchBotConfig.blacklistedUsers || messageEvent.user.id in TwitchBotConfig.blacklistedUsers){
+            twitchClient.chat.sendMessage(
+                TwitchBotConfig.channel,
+                "Imagine not being a blacklisted user. Couldn't be you ${messageEvent.user.name} ${TwitchBotConfig.blacklistEmote}"
+            )
+            if(messageEvent.user.id !in TwitchBotConfig.blacklistedUsers) {
+                logger.warn("Blacklisted user ${messageEvent.user.name} tried using a command. Please use following ID in the properties file instead of the name: ${messageEvent.user.id}")
+            }
+            return@onEvent
+        }
+
         logger.info("User '${messageEvent.user.name}' tried using command '${command.names.first()}' with arguments: ${parts.drop(1).joinToString()}")
 
         val nextAllowedCommandUsageInstant = nextAllowedCommandUsageInstantPerUser.getOrPut(command to messageEvent.user.name) {
