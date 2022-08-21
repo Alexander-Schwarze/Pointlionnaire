@@ -34,6 +34,7 @@ Before executing the program, you need a folder "data" on the same level as the 
     * no_winner_emote=\<twitch emote that is used when there is no winner at the end (that means no one got one answer right)>
     * tie_emote=\<twitch emote that is used when a tie gets announced>
     * tiebreaker_answer_duration=\<parameter to set the time each tie breaker question can get answered. This is a double and is interpreted as minutes>
+    * max_amount_tries=\<maximum amount of tries each user gets for each question>
 * questions.json:
   * This file holds the information for all questions. They are structured in JSON-format. The Objects in the array need following structure:
     ```json

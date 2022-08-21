@@ -83,44 +83,46 @@ fun App() {
             lightColorPalette
         }
     ) {
-        Column(
-            modifier = Modifier
-                .padding(24.dp)
-                .fillMaxSize()
-        ) {
-            Row() {
-                Text(
-                    text = currentQuestion
-                )
-            }
-
-            Row(
+        Scaffold {
+            Column(
                 modifier = Modifier
-                    .padding(top = 4.dp)
+                    .padding(24.dp)
+                    .fillMaxSize()
             ) {
-                Text(
-                    text = leaderBoard
-                )
-            }
+                Row() {
+                    Text(
+                        text = currentQuestion
+                    )
+                }
 
-            Row(
-                modifier = Modifier
-                    .padding(top = 8.dp)
-            ) {
-                Button(
-                    onClick = {
-                        startOrStopInterval()
-                    },
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .padding(top = 4.dp)
                 ) {
                     Text(
-                        if (intervalRunning.value) {
-                            "Stop"
-                        } else {
-                            "Start"
-                        }
+                        text = leaderBoard
                     )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            startOrStopInterval()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            if (intervalRunning.value) {
+                                "Stop"
+                            } else {
+                                "Start"
+                            }
+                        )
+                    }
                 }
             }
         }

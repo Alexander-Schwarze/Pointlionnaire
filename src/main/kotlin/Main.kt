@@ -354,7 +354,10 @@ fun intervalHandler(chat: TwitchChat): Boolean {
 
             questionHandlerInstance.resetCurrentQuestion()
 
-            chat.sendMessage(TwitchBotConfig.channel, "No one got it right? Well... next question will be in $durationUntilNextTieQuestion")
+            chat.sendMessage(
+                TwitchBotConfig.channel,
+                "No one got it right? Well... next question will be in $durationUntilNextTieQuestion"
+            )
             delay(durationUntilNextTieQuestion)
         }
 
