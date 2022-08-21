@@ -17,21 +17,23 @@ import commands.helpCommand
 import commands.redeemCommand
 import handler.QuestionHandler
 import handler.UserHandler
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toJavaInstant
 import kotlinx.serialization.json.Json
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.*
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.time.Duration
-import java.time.Instant
 import java.time.format.DateTimeFormatterBuilder
 import javax.swing.JOptionPane
-import kotlin.math.log
 import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
 
 
 val logger: Logger = LoggerFactory.getLogger("Bot")
@@ -42,7 +44,7 @@ val json = Json {
 }
 
 var intervalRunning = mutableStateOf(false)
-var timestamptUntilNextAction: MutableState<Instant> = mutableStateOf(Instant.now())
+var timestamptUntilNextAction: MutableState<Instant> = mutableStateOf(Clock.System.now())
 
 suspend fun main() = try {
     setupLogging()
@@ -85,7 +87,7 @@ fun setupLogging() {
     val logFileName = DateTimeFormatterBuilder()
         .appendInstant(0)
         .toFormatter()
-        .format(Instant.now())
+        .format(Clock.System.now().toJavaInstant())
         .replace(':', '-')
 
     val logFile = Paths.get(LOG_DIRECTORY, "${logFileName}.log").toFile().also {
@@ -150,11 +152,11 @@ private suspend fun setupTwitchBot(): TwitchClient {
         logger.info("User '${messageEvent.user.name}' tried using command '${command.names.first()}' with arguments: ${parts.drop(1).joinToString()}")
 
         val nextAllowedCommandUsageInstant = nextAllowedCommandUsageInstantPerUser.getOrPut(command to messageEvent.user.name) {
-            Instant.now()
+            Clock.System.now()
         }
 
-        if (Instant.now().isBefore(nextAllowedCommandUsageInstant) && CommandPermission.MODERATOR !in messageEvent.permissions) {
-            val secondsUntilTimeoutOver = Duration.between(Instant.now(), nextAllowedCommandUsageInstant).seconds
+        if ((Clock.System.now() - nextAllowedCommandUsageInstant).isNegative() && CommandPermission.MODERATOR !in messageEvent.permissions) {
+            val secondsUntilTimeoutOver = nextAllowedCommandUsageInstant - Clock.System.now()
 
             twitchClient.chat.sendMessage(
                 TwitchBotConfig.channel,
@@ -174,7 +176,7 @@ private suspend fun setupTwitchBot(): TwitchClient {
             command.handler(commandHandlerScope, parts.drop(1))
 
             val key = command to messageEvent.user.name
-            nextAllowedCommandUsageInstantPerUser[key] = nextAllowedCommandUsageInstantPerUser[key]!!.plus(commandHandlerScope.addedUserCooldown.toJavaDuration())
+            nextAllowedCommandUsageInstantPerUser[key] = nextAllowedCommandUsageInstantPerUser[key]!! + commandHandlerScope.addedUserCooldown
         }
     }
 
