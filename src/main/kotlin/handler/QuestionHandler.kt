@@ -2,17 +2,13 @@ package handler
 
 import Question
 import TwitchBotConfig
-import androidx.compose.ui.text.toLowerCase
 import com.github.twitch4j.common.events.domain.EventUser
 import json
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.decodeFromString
 import logger
-import org.checkerframework.checker.units.qual.m
 import java.io.File
 import java.util.*
-import java.util.stream.Collectors.toSet
-import kotlin.math.log
 
 class QuestionHandler private constructor(
     private val questions: Set<Question>
