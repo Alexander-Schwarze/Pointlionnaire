@@ -10,8 +10,13 @@ import com.github.tkuenneth.nativeparameterstoreaccess.WindowsRegistry
 import handler.QuestionHandler
 import handler.UserHandler
 import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
+import kotlinx.datetime.toJavaInstant
+import java.time.format.DateTimeFormatterBuilder
 import kotlin.concurrent.timer
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
+import kotlin.time.toJavaDuration
 
 val lightColorPalette = lightColors(
     primary = Color(0xff4466ff),
@@ -50,7 +55,7 @@ fun App() {
 
     DisposableEffect(Unit) {
         val timer = timer(
-            period = 1.seconds.inWholeMilliseconds,
+            period = 0.5.seconds.inWholeMilliseconds,
             daemon = true
         ) {
             if(UserHandler.getTop3Users().isNotEmpty()){
@@ -60,14 +65,19 @@ fun App() {
             }
 
             val questionText = QuestionHandler.instance?.currentQuestion?.value?.questionText
+            val timeLeftDisplay = timestampNextAction.value?.minus(Clock.System.now())
             currentQuestion = "Current Question: $questionText\n" +
                     "Answer: ${QuestionHandler.instance?.currentQuestion?.value?.answer}\n" +
                     "Time left until " +
                     if(questionText != QuestionHandler.instance?.emptyQuestion?.questionText){
-                        // TODO: Timers
                         "answering ends: "
                     } else {
                         "next question: "
+                    } +
+                    if(timeLeftDisplay == null || timeLeftDisplay.inWholeMilliseconds < 0) {
+                        "No Timer Running"
+                    } else {
+                        timeLeftDisplay.toString(DurationUnit.SECONDS, 0)
                     }
         }
 

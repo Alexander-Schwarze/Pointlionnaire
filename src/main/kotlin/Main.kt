@@ -44,7 +44,6 @@ val json = Json {
 }
 
 var intervalRunning = mutableStateOf(false)
-var timestamptUntilNextAction: MutableState<Instant> = mutableStateOf(Clock.System.now())
 
 suspend fun main() = try {
     setupLogging()
@@ -78,29 +77,6 @@ suspend fun main() = try {
     logger.error("Error while executing program.", e)
     exitProcess(0)
 }
-
-private const val LOG_DIRECTORY = "logs"
-
-fun setupLogging() {
-    Files.createDirectories(Paths.get(LOG_DIRECTORY))
-
-    val logFileName = DateTimeFormatterBuilder()
-        .appendInstant(0)
-        .toFormatter()
-        .format(Clock.System.now().toJavaInstant())
-        .replace(':', '-')
-
-    val logFile = Paths.get(LOG_DIRECTORY, "${logFileName}.log").toFile().also {
-        if (!it.exists()) {
-            it.createNewFile()
-        }
-    }
-
-    System.setOut(PrintStream(MultiOutputStream(System.out, FileOutputStream(logFile))))
-
-    logger.info("Log file '${logFile.name}' has been created.")
-}
-
 
 private suspend fun setupTwitchBot(): TwitchClient {
     val chatAccountToken = File("data/twitchtoken.txt").readText()
@@ -188,6 +164,9 @@ fun startOrStopInterval(){
     intervalRunning.value = !intervalRunning.value
     logger.info("intervalRunning: ${intervalRunning.value}")
 }
+
+var timestampNextAction: MutableState<Instant?> = mutableStateOf(null)
+
 fun intervalHandler(chat: TwitchChat): Boolean {
     val questionHandlerInstance = QuestionHandler.instance ?: run {
         logger.error("questionHandlerInstance is null. Aborting...")
@@ -207,10 +186,12 @@ fun intervalHandler(chat: TwitchChat): Boolean {
         logger.error("Error while accessing points List. Aborting...")
         return false
     }
+    val explanationDelays = listOf(10.seconds, 10.seconds, 30.seconds)
 
     backgroundCoroutineScope.launch {
         while (true){
             if(intervalRunning.value){
+                timestampNextAction.value = Clock.System.now() + explanationDelays.sumOf { it.inWholeSeconds }.seconds + delayBeforeQuestion
                 logger.info("Interval running. Amount of asked questions: ${questionHandlerInstance.askedQuestions.size}")
                 if(questionHandlerInstance.askedQuestions.isEmpty()){
 
@@ -229,7 +210,7 @@ fun intervalHandler(chat: TwitchChat): Boolean {
                                 " will be asked during the next ${TwitchBotConfig.totalIntervalDuration} and you have per question ${TwitchBotConfig.answerDuration} to answer! ${TwitchBotConfig.explanationEmote}"
                     )
 
-                    delay(10.seconds)
+                    delay(explanationDelays[0])
 
                     chat.sendMessage(
                         TwitchBotConfig.channel,
@@ -244,16 +225,17 @@ fun intervalHandler(chat: TwitchChat): Boolean {
                                 " to get the answer right. Wanna know, how to answer? Type \"${TwitchBotConfig.commandPrefix}${helpCommand.names.first()}\" to see all commands!"
                     )
 
-                    delay(10.seconds)
+                    delay(explanationDelays[1])
 
                     chat.sendMessage(
                         TwitchBotConfig.channel,
                         "The winner will be announced at the end. They can get a random prize by typing \"${TwitchBotConfig.commandPrefix}${redeemCommand.names.first()}\". How cool is that?! ${TwitchBotConfig.ggEmote}"
                     )
 
-                    delay(30.seconds)
+                    delay(explanationDelays[2])
                 }
 
+                timestampNextAction.value = Clock.System.now() + delayBeforeQuestion
                 chat.sendMessage(
                     TwitchBotConfig.channel,
                     "Tighten your seatbelts, the question is coming up!"
@@ -270,6 +252,7 @@ fun intervalHandler(chat: TwitchChat): Boolean {
                             "——————————————————————"
                 )
 
+                timestampNextAction.value = Clock.System.now() + TwitchBotConfig.answerDuration
                 delay(TwitchBotConfig.answerDuration)
                 chat.sendMessage(
                     TwitchBotConfig.channel,
@@ -298,8 +281,10 @@ fun intervalHandler(chat: TwitchChat): Boolean {
 
                 chat.sendMessage(
                     TwitchBotConfig.channel,
-                    "Next question will be in $durationUntilNextQuestion"
+                    "Next question will be in ${durationUntilNextQuestion + delayBeforeQuestion}"
                 )
+
+                timestampNextAction.value = Clock.System.now() + durationUntilNextQuestion + delayBeforeQuestion
                 delay(durationUntilNextQuestion)
             }
         }
@@ -312,18 +297,21 @@ fun intervalHandler(chat: TwitchChat): Boolean {
                 "Oh oh! Looks like we have a tie ${TwitchBotConfig.tieEmote}"
             )
 
+            timestampNextAction.value = Clock.System.now() + 10.seconds * 2 + delayBeforeQuestion
             delay(10.seconds)
             logger.info("Tie breaker users: ${UserHandler.tieBreakUsers.joinToString(" | ")}")
             chat.sendMessage(
                 TwitchBotConfig.channel,
                 "The users ${UserHandler.tieBreakUsers.map { it.name }.let { users ->
                 listOf(users.dropLast(1).joinToString(), users.last()).filter { it.isNotBlank() }.joinToString(" and ")}
-                } are tied first place and will have to answer tie breaker questions. Whoever is the quickest to answer first wins!"
+                } are tied first place and will have to answer tie breaker questions. Whoever is the quickest to answer correctly first wins!"
             )
+            delay(10.seconds)
 
             while (true){
-                chat.sendMessage(TwitchBotConfig.channel, "${UserHandler.tieBreakUsers.joinToString()} - Get Ready! The question is coming up!")
-                delay(30.seconds)
+                chat.sendMessage(TwitchBotConfig.channel, "${UserHandler.tieBreakUsers.joinToString{ it.name }} - Get Ready! The question is coming up!")
+                timestampNextAction.value = Clock.System.now() + delayBeforeQuestion
+                delay(delayBeforeQuestion)
 
                 chat.sendMessage(
                     TwitchBotConfig.channel,
@@ -334,6 +322,7 @@ fun intervalHandler(chat: TwitchChat): Boolean {
                             "——————————————————————"
                 )
 
+                timestampNextAction.value = Clock.System.now() + TwitchBotConfig.tiebreakerAnswerDuration
                 delay(TwitchBotConfig.tiebreakerAnswerDuration)
 
                 chat.sendMessage(
@@ -349,18 +338,19 @@ fun intervalHandler(chat: TwitchChat): Boolean {
                     }
                 }
 
-                if(questionHandlerInstance.getCurrentLeaderboard().isNotEmpty()){
+                questionHandlerInstance.resetCurrentQuestion()
+
+                if(UserHandler.getTieBreakerUser().size == 1){
                     break
                 }
+
+                chat.sendMessage(
+                    TwitchBotConfig.channel,
+                    "No one got it right? Well... next question will be in ${durationUntilNextTieQuestion + delayBeforeQuestion}"
+                )
+                timestampNextAction.value = Clock.System.now() + durationUntilNextTieQuestion + delayBeforeQuestion
+                delay(durationUntilNextTieQuestion)
             }
-
-            questionHandlerInstance.resetCurrentQuestion()
-
-            chat.sendMessage(
-                TwitchBotConfig.channel,
-                "No one got it right? Well... next question will be in $durationUntilNextTieQuestion"
-            )
-            delay(durationUntilNextTieQuestion)
         }
 
         logger.info("The Game ended. Evaluating results")
@@ -406,6 +396,28 @@ fun intervalHandler(chat: TwitchChat): Boolean {
         }
 
     }
-
     return true
+}
+
+
+private const val LOG_DIRECTORY = "logs"
+
+fun setupLogging() {
+    Files.createDirectories(Paths.get(LOG_DIRECTORY))
+
+    val logFileName = DateTimeFormatterBuilder()
+        .appendInstant(0)
+        .toFormatter()
+        .format(Clock.System.now().toJavaInstant())
+        .replace(':', '-')
+
+    val logFile = Paths.get(LOG_DIRECTORY, "${logFileName}.log").toFile().also {
+        if (!it.exists()) {
+            it.createNewFile()
+        }
+    }
+
+    System.setOut(PrintStream(MultiOutputStream(System.out, FileOutputStream(logFile))))
+
+    logger.info("Log file '${logFile.name}' has been created.")
 }
