@@ -231,14 +231,22 @@ fun intervalHandler(chat: TwitchChat): Boolean {
 
                     chat.sendMessage(
                         TwitchBotConfig.channel,
-                        "You will have ${QuestionHandler.instance.maxAmountTries} tries to get the answer right. Wanna know, how to answer? Type \"${TwitchBotConfig.commandPrefix}${helpCommand.names.first()}\" to see all commands!"
+                        "You will have ${TwitchBotConfig.maxAmountTries} " +
+                                "tr".run {
+                                    if(TwitchBotConfig.maxAmountTries > 1){
+                                        this + "ies"
+                                    } else {
+                                        this + "y"
+                                    }
+                                } +
+                                " to get the answer right. Wanna know, how to answer? Type \"${TwitchBotConfig.commandPrefix}${helpCommand.names.first()}\" to see all commands!"
                     )
 
                     delay(10.seconds)
 
                     chat.sendMessage(
                         TwitchBotConfig.channel,
-                        "The winner will be announced at the end. They can get a random price by typing \"${TwitchBotConfig.commandPrefix}${redeemCommand.names.first()}\". How cool is that?! ${TwitchBotConfig.ggEmote}"
+                        "The winner will be announced at the end. They can get a random prize by typing \"${TwitchBotConfig.commandPrefix}${redeemCommand.names.first()}\". How cool is that?! ${TwitchBotConfig.ggEmote}"
                     )
 
                     delay(30.seconds)
@@ -255,7 +263,9 @@ fun intervalHandler(chat: TwitchChat): Boolean {
                 }
                 chat.sendMessage(
                     TwitchBotConfig.channel,
-                    currentQuestion.questionText
+                    "——————————————————————" +
+                            "Question ${questionHandlerInstance.askedQuestions.size}: " + currentQuestion.questionText +
+                            "——————————————————————"
                 )
 
                 delay(TwitchBotConfig.answerDuration)
@@ -310,14 +320,16 @@ fun intervalHandler(chat: TwitchChat): Boolean {
             )
 
             while (true){
-                chat.sendMessage(TwitchBotConfig.channel, "Get Ready! The question is coming up!")
+                chat.sendMessage(TwitchBotConfig.channel, "${UserHandler.tieBreakUsers.joinToString()} - Get Ready! The question is coming up!")
                 delay(30.seconds)
 
                 chat.sendMessage(
                     TwitchBotConfig.channel,
-                    questionHandlerInstance.popRandomTieBreakerQuestion().also {
-                        logger.info("Current question: ${it.questionText} | Current answer: ${it.answer}")
-                    }.questionText
+                    "——————————————————————" +
+                            questionHandlerInstance.popRandomTieBreakerQuestion().also {
+                                logger.info("Current question: ${it.questionText} | Current answer: ${it.answer}")
+                            }.questionText +
+                            "——————————————————————"
                 )
 
                 delay(TwitchBotConfig.tiebreakerAnswerDuration)

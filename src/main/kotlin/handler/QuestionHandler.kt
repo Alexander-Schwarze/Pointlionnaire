@@ -2,6 +2,7 @@ package handler
 
 import Question
 import TwitchBotConfig
+import TwitchBotConfig.maxAmountTries
 import com.github.twitch4j.common.events.domain.EventUser
 import json
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,8 +57,6 @@ class QuestionHandler private constructor(
             QuestionHandler(questions)
         }
     }
-
-    val maxAmountTries = 3
 
     val emptyQuestion = Question(id = -1, questionText = TwitchBotConfig.noQuestionPendingText, answer = "None", isLast2Questions = false, isTieBreakerQuestion = false)
     val currentQuestion = MutableStateFlow(emptyQuestion)

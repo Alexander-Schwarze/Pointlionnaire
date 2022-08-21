@@ -29,4 +29,5 @@ object TwitchBotConfig {
     val noWinnerEmote: String = properties.getProperty("no_winner_emote")
     val tieEmote: String = properties.getProperty("tie_emote")
     val tiebreakerAnswerDuration = properties.getProperty("tiebreaker_answer_duration").toDouble().minutes
+    val maxAmountTries = properties.getProperty("max_amount_tries").toInt()
 }

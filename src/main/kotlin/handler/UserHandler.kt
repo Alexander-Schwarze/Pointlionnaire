@@ -5,7 +5,7 @@ import logger
 
 object UserHandler {
     private val leaderBoard = mutableMapOf<EventUser, /* points: */ Int>()
-    var winner: EventUser? = null // holds the ID of the user that had the most points
+    var winner: EventUser? = null // holds the user that had the most points. Until the game is over, it stays null
         private set
     val tieBreakUsers = mutableListOf<EventUser>()
 
