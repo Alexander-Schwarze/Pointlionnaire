@@ -55,7 +55,7 @@ fun App() {
         ) {
             if(UserHandler.getTop3Users().isNotEmpty()){
                 UserHandler.getTop3Users().run {
-                    leaderBoard = "First: ${this[0].userName}\nSecond: ${this[1].userName}\nThird: ${this[2].userName}"
+                    leaderBoard = "First: ${this[0]?.name}\nSecond: ${this[1]?.name ?: "No one"}\nThird: ${this[2]?.name ?: "No one"}"
                 }
             }
 
@@ -83,8 +83,6 @@ fun App() {
             lightColorPalette
         }
     ) {
-        // val coroutineScope = rememberCoroutineScope()
-
         Column(
             modifier = Modifier
                 .padding(24.dp)

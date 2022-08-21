@@ -2,8 +2,8 @@ package handler
 
 import Question
 import TwitchBotConfig
-import User
 import androidx.compose.ui.text.toLowerCase
+import com.github.twitch4j.common.events.domain.EventUser
 import json
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.decodeFromString
@@ -66,8 +66,8 @@ class QuestionHandler private constructor(
     val emptyQuestion = Question(id = -1, questionText = TwitchBotConfig.noQuestionPendingText, answer = "None", isLast2Questions = false, isTieBreakerQuestion = false)
     val currentQuestion = MutableStateFlow(emptyQuestion)
 
-    val askedQuestions = mutableMapOf<Question, /* leader board: */ List<User>>()
-    private val amountTriesCurrentQuestionPerUser = mutableMapOf<User, /* amount tries: */ Int>()
+    val askedQuestions = mutableMapOf<Question, /* leader board: */ List<EventUser>>()
+    private val amountTriesCurrentQuestionPerUser = mutableMapOf<EventUser, /* amount tries: */ Int>()
 
     fun popRandomQuestion(): Question {
         return if(isLastTwoQuestions()) {
@@ -99,7 +99,7 @@ class QuestionHandler private constructor(
         }
     }
 
-    fun updateCurrentQuestionsLeaderboard(user: User) {
+    fun updateCurrentQuestionsLeaderboard(user: EventUser) {
         val newLeaderboard = (askedQuestions[currentQuestion.value] ?: listOf()).toMutableList()
 
         if(newLeaderboard.size == 3 || user in newLeaderboard) {
@@ -111,13 +111,13 @@ class QuestionHandler private constructor(
         askedQuestions[currentQuestion.value] = newLeaderboard
     }
 
-    fun getCurrentLeaderboard(): List<User> {
+    fun getCurrentLeaderboard(): List<EventUser> {
         return askedQuestions[currentQuestion.value] ?: listOf()
     }
 
-    fun checkAnswer(answer: String, user: User): Boolean {
+    fun checkAnswer(answer: String, user: EventUser): Boolean {
         return if(amountTriesCurrentQuestionPerUser[user] == maxAmountTries){
-            logger.info("User ${user.userName} has exceeded their tries")
+            logger.info("User ${user.name} has exceeded their tries")
             false
         } else {
             if(amountTriesCurrentQuestionPerUser[user] == null) {
@@ -126,7 +126,7 @@ class QuestionHandler private constructor(
                 amountTriesCurrentQuestionPerUser[user] = amountTriesCurrentQuestionPerUser[user]!! + 1
             }
             (answer.trim() == currentQuestion.value.answer).also {
-                logger.info("User ${user.userName} answered the question, solution was: $it")
+                logger.info("User ${user.name} answered the question, solution was: $it")
             }
         }
     }

@@ -1,17 +1,17 @@
 package handler
 
-import User
+import com.github.twitch4j.common.events.domain.EventUser
 import logger
 
 class UserHandler {
 
     companion object {
-        private val leaderBoard = mutableMapOf<User, /* points: */ Int>()
-        var winner: User? = null // holds the ID of the user that had the most points
+        private val leaderBoard = mutableMapOf<EventUser, /* points: */ Int>()
+        var winner: EventUser? = null // holds the ID of the user that had the most points
             private set
-        val tieBreakUsers = mutableListOf<User>()
+        val tieBreakUsers = mutableListOf<EventUser>()
 
-        fun updateLeaderBoard(user: User, points: Int) {
+        fun updateLeaderBoard(user: EventUser, points: Int) {
             val currentPoints = leaderBoard[user]
             val newPoints = if(currentPoints != null){
                 currentPoints + points
@@ -23,7 +23,7 @@ class UserHandler {
             logger.info("Leaderboard updated. New Leaderboard: $leaderBoard")
         }
 
-        fun getTop3Users(): List<User> {
+        fun getTop3Users(): List<EventUser?> {
             val sortedList = leaderBoard.toList().sortedByDescending { it.second }
             return if(sortedList.isEmpty()) {
                 listOf()
@@ -32,15 +32,15 @@ class UserHandler {
                     sortedList[0].first,
                     try{
                         sortedList[1].first
-                    } catch (e: Exception) {User("None", "-1")},
+                    } catch (e: Exception) {null},
                     try{
                         sortedList[2].first
-                    } catch (e: Exception) {User("None", "-2")}
+                    } catch (e: Exception) {null}
                 )
             }
         }
 
-        fun getTieBreakerUser(): List<User> {
+        fun getTieBreakerUser(): List<EventUser> {
             return if(leaderBoard.toList().isEmpty()) {
                 listOf()
             } else {

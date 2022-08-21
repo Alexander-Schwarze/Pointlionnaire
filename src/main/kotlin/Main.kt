@@ -10,6 +10,7 @@ import androidx.compose.ui.window.application
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential
 import com.github.twitch4j.TwitchClient
 import com.github.twitch4j.TwitchClientBuilder
+import com.github.twitch4j.chat.TwitchChat
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent
 import com.github.twitch4j.common.enums.CommandPermission
 import commands.helpCommand
@@ -46,7 +47,7 @@ var timestamptUntilNextAction: MutableState<Instant> = mutableStateOf(Instant.no
 suspend fun main() = try {
     setupLogging()
     val twitchClient = setupTwitchBot()
-    if(!intervalHandler(twitchClient)){
+    if(!intervalHandler(twitchClient.chat)){
         JOptionPane.showMessageDialog(null, "Error with starting the interval. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
         logger.error("Error with starting the interval. Check the log for more infos!")
         exitProcess(0)
@@ -185,8 +186,7 @@ fun startOrStopInterval(){
     intervalRunning.value = !intervalRunning.value
     logger.info("intervalRunning: ${intervalRunning.value}")
 }
-fun intervalHandler(twitchClient: TwitchClient): Boolean {
-    val chat = twitchClient.chat
+fun intervalHandler(chat: TwitchChat): Boolean {
     val questionHandlerInstance = QuestionHandler.instance ?: run {
         logger.error("questionHandlerInstance is null. Aborting...")
         return false
@@ -304,7 +304,7 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
             logger.info("Tie breaker users: ${UserHandler.tieBreakUsers.joinToString(" | ")}")
             chat.sendMessage(
                 TwitchBotConfig.channel,
-                "The users ${UserHandler.tieBreakUsers.map { it.userName }.let { users ->
+                "The users ${UserHandler.tieBreakUsers.map { it.name }.let { users ->
                 listOf(users.dropLast(1).joinToString(), users.last()).filter { it.isNotBlank() }.joinToString(" and ")}
                 } are tied first place and will have to answer tie breaker questions. Whoever is the quickest to answer first wins!"
             )
@@ -360,16 +360,16 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
         if(UserHandler.winner != null) {
             chat.sendMessage(
                 TwitchBotConfig.channel,
-                "The results are in and the winner is: ${UserHandler.winner?.userName} ${TwitchBotConfig.ggEmote}"
+                "The results are in and the winner is: ${UserHandler.winner?.name} ${TwitchBotConfig.ggEmote}"
             )
             delay(4.seconds)
 
             val leaderBoard = UserHandler.getTop3Users().also {
-                logger.info("Leaderboard at the end: First: ${it[0].userName}, Second: ${it[1].userName}, Third: ${it[2].userName}")
+                logger.info("Leaderboard at the end: First: ${it[0]?.name}, Second: ${it[1]?.name}, Third: ${it[2]?.name}")
             }
             chat.sendMessage(
                 TwitchBotConfig.channel,
-                "The Top 3 leaderboard: First: ${leaderBoard[0].userName}, Second: ${leaderBoard[1].userName}, Third: ${leaderBoard[2].userName}"
+                "The Top 3 leaderboard: First: ${leaderBoard[0]?.name ?: "No one"}, Second: ${leaderBoard[1]?.name ?: "No one"}, Third: ${leaderBoard[2]?.name ?: "No one"}"
             )
 
             delay(5.seconds)
@@ -377,7 +377,7 @@ fun intervalHandler(twitchClient: TwitchClient): Boolean {
             logger.info("The winner is: ${UserHandler.winner}")
             chat.sendMessage(
                 TwitchBotConfig.channel,
-                "${UserHandler.winner!!.userName}, you now have the opportunity to redeem a random prize by using ${TwitchBotConfig.commandPrefix}${redeemCommand.names.first()}. You can do this until I get shut down!"
+                "${UserHandler.winner!!.name}, you now have the opportunity to redeem a random prize by using ${TwitchBotConfig.commandPrefix}${redeemCommand.names.first()}. You can do this until I get shut down!"
             )
         } else {
             logger.info("No one got any answer right")

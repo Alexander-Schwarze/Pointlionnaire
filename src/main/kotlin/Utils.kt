@@ -28,8 +28,3 @@ data class Question (
     val isLast2Questions: Boolean,
     val isTieBreakerQuestion: Boolean
 )
-
-data class User (
-    val userName: String,
-    val userID: String
-)

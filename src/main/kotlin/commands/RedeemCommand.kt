@@ -9,7 +9,7 @@ import logger
 val redeemCommand: Command = Command(
     names = listOf("redeem", "r"),
     handler = {
-        if(UserHandler.winner?.userID != user.id) {
+        if(UserHandler.winner?.id != user.id) {
             return@Command
         }
 
