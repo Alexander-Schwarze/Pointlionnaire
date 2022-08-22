@@ -4,15 +4,15 @@ A project for a bot in twitch chat to ask questions and find a winner.
 This project idea comes from Donut [twitch.tv/adonutirl](https://www.twitch.tv/adonutirl)
 
 ### General Info
-* This Bot should be a Moderator on your channel so it does not get blocked for spam or shadow-banned even.<br>
-* You need a token from a twitch account so the bot can use it.<br>
+* This Bot should be a Moderator on your channel, so it does not get blocked for spam or shadow-banned even.
+* You need a token from a twitch account so the bot can use it.
 * Keep in mind that the compiled executable can do anything on your PC. The code is openly accessible and can be reviewed in this repository, yet I will take no blame if something goes wrong.
-* As of Version 1.0.0, it is not possible to set questions/redeems via UI. There are two JSON-Files that hold the information. You need to manually edit them. More information is below.
+* As of Version 1.0.0, it is not possible to set questions/redeems via UI (this feature is planned for Version 2.0.0). There are two JSON-Files that hold the information. You need to manually edit them. More information is below.
 
 ### Setup
 Before executing the program, you need a folder "data" on the same level as the executable with following files and their contents:
-* twitchBotConfig.properties
-    * channel=\<channel_name>
+* twitchBotConfig.properties (replace explanations in <> with the needed data)
+    * channel=\<channel name>
     * only_mods=\<true if only mods should be able to use the bot>
     * command_prefix=\<prefix for commands>
     * leave_emote=\<twitch emote that appears when the bot leaves the chat>
@@ -68,7 +68,7 @@ Before executing the program, you need a folder "data" on the same level as the 
     * At least 2 questions which are last 2 questions and no tiebreaker. 
     * At least 1 tiebreaker question.
 * redeems.json:
-  * This file holds the information for all redeems. They are structured in JSON-format. The Strings are bracketed in a JSON-Array:
+  * This file holds the information for all redeems. They are structured in JSON-format. The Strings are bracketed in an JSON-Array:
   ```json
   [
     "Redeem 1",

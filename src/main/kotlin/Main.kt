@@ -16,6 +16,7 @@ import com.github.twitch4j.common.enums.CommandPermission
 import commands.helpCommand
 import commands.redeemCommand
 import handler.QuestionHandler
+import handler.RedeemHandler
 import handler.UserHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -51,6 +52,13 @@ suspend fun main() = try {
     if(!intervalHandler(twitchClient.chat)){
         JOptionPane.showMessageDialog(null, "Error with starting the interval. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
         logger.error("Error with starting the interval. Check the log for more infos!")
+        exitProcess(0)
+    }
+
+    // TODO: This check should be somewhere else, but not in the RedeemCommand. Though the redeem command is the first place where they are used
+    if(RedeemHandler.instance == null) {
+        JOptionPane.showMessageDialog(null, "Error with reading the redeems. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
+        logger.error("Error with setting up the redeems. Check the log for more infos!")
         exitProcess(0)
     }
 
@@ -167,6 +175,7 @@ fun startOrStopInterval(){
 
 var timestampNextAction: MutableState<Instant?> = mutableStateOf(null)
 
+// TODO: This needs to be an Object (I think) with properties and an interval handling function
 fun intervalHandler(chat: TwitchChat): Boolean {
     val questionHandlerInstance = QuestionHandler.instance ?: run {
         logger.error("questionHandlerInstance is null. Aborting...")
