@@ -17,20 +17,13 @@ import logger
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-// TODO: Maybe this should be a class instead?
 class IntervalHandler private constructor (
-    private val questionHandlerInstance: QuestionHandler?,
-    val durationUntilNextQuestion: Duration,
+    private val durationUntilNextQuestion: Duration,
     private val points: Map<Int, Int>
 ) {
 
     companion object {
         val instance = run {
-            val questionHandlerInstance = QuestionHandler.instance
-            questionHandlerInstance ?: also {
-                logger.error("questionHandlerInstance is null. Aborting...")
-                return@run null
-            }
 
             val durationUntilNextQuestion =
                 TwitchBotConfig.totalIntervalDuration / TwitchBotConfig.amountQuestions - TwitchBotConfig.answerDuration - delayBeforeQuestion
@@ -50,12 +43,13 @@ class IntervalHandler private constructor (
                 return@run null
             }
 
-            IntervalHandler(questionHandlerInstance, durationUntilNextQuestion, points)
+            IntervalHandler(durationUntilNextQuestion, points)
         }
 
         val delayBeforeQuestion = 10.seconds
     }
 
+    private val questionHandlerInstance = QuestionHandler.instance
     val intervalRunning = mutableStateOf(false)
 
     var timestampNextAction: MutableState<Instant?> = mutableStateOf(null)

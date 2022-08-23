@@ -12,6 +12,7 @@ import com.github.twitch4j.TwitchClientBuilder
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent
 import com.github.twitch4j.common.enums.CommandPermission
 import handler.IntervalHandler
+import handler.QuestionHandler
 import handler.RedeemHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,15 +40,11 @@ val json = Json {
 
 suspend fun main() = try {
     setupLogging()
+
+    sanityCheckHandlers()
+
     val twitchClient = setupTwitchBot()
     TwitchChatHandler.chat = twitchClient.chat
-
-    // TODO: This check should be somewhere else, but not in the RedeemCommand. Though the redeem command is the first place where they are used
-    if(RedeemHandler.instance == null) {
-        JOptionPane.showMessageDialog(null, "Error with reading the redeems. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
-        logger.error("Error with setting up the redeems. Check the log for more infos!")
-        exitProcess(0)
-    }
 
     application {
         DisposableEffect(Unit) {
@@ -153,6 +150,29 @@ private suspend fun setupTwitchBot(): TwitchClient {
 
     logger.info("Twitch client started.")
     return twitchClient
+}
+
+fun sanityCheckHandlers() {
+    // TODO: This check should be somewhere else, but not in the RedeemCommand. Though the redeem command is the first place where they are used
+    if(RedeemHandler.instance == null) {
+        JOptionPane.showMessageDialog(null, "Error with reading the redeems. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
+        logger.error("Error with setting up the redeems. Check the log for more infos!")
+        exitProcess(0)
+    }
+
+    // TODO: This check should be somewhere else, but not in the App's UI. Though the App's button is the first place where this is used
+    if(QuestionHandler.instance == null) {
+        JOptionPane.showMessageDialog(null, "Error with reading the questions. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
+        logger.error("Error with setting up the questions. Check the log for more infos!")
+        exitProcess(0)
+    }
+
+    // TODO: This check should be somewhere else, but not in the App's UI. Though the App's button is the first place where this is used
+    if(IntervalHandler.instance == null) {
+        JOptionPane.showMessageDialog(null, "Error with setting up the interval handler. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
+        logger.error("Error with setting up the interval handler. Check the log for more infos!")
+        exitProcess(0)
+    }
 }
 
 private const val LOG_DIRECTORY = "logs"
