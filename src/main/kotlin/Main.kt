@@ -152,8 +152,6 @@ private suspend fun setupTwitchBot(): TwitchClient {
     return twitchClient
 }
 
-<<<<<<< HEAD
-=======
 fun sanityCheckHandlers() {
     // TODO: This check should be somewhere else, but not in the RedeemCommand. Though the redeem command is the first place where they are used
     if(RedeemHandler.instance == null) {
@@ -177,7 +175,6 @@ fun sanityCheckHandlers() {
     }
 }
 
->>>>>>> Interval_Refactor
 private const val LOG_DIRECTORY = "logs"
 
 fun setupLogging() {
