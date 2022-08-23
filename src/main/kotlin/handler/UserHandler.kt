@@ -63,4 +63,10 @@ object UserHandler {
             leaderBoard.toList().sortedByDescending { it.second }[0].first
         }
     }
+
+    fun resetUsers() {
+        leaderBoard.clear()
+        winner = null
+        tieBreakUsers.clear()
+    }
 }

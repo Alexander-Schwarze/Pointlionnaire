@@ -48,4 +48,8 @@ class RedeemHandler private constructor(
 
         return redeems.random().also { usedRolls++ }
     }
+
+    fun resetRedeems() {
+        usedRolls = 0
+    }
 }

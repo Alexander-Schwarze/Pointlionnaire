@@ -7,18 +7,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.github.tkuenneth.nativeparameterstoreaccess.NativeParameterStoreAccess
 import com.github.tkuenneth.nativeparameterstoreaccess.WindowsRegistry
-import handler.IntervalHandler.startOrStopInterval
-import handler.IntervalHandler.timestampNextAction
+import handler.IntervalHandler
 import handler.QuestionHandler
 import handler.UserHandler
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
-import kotlinx.datetime.toJavaInstant
-import java.time.format.DateTimeFormatterBuilder
+import javax.swing.JOptionPane
 import kotlin.concurrent.timer
+import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
-import kotlin.time.toJavaDuration
 
 val lightColorPalette = lightColors(
     primary = Color(0xff4466ff),
@@ -67,7 +65,7 @@ fun App() {
             }
 
             val questionText = QuestionHandler.instance?.currentQuestion?.value?.questionText
-            val timeLeftDisplay = timestampNextAction.value?.minus(Clock.System.now())
+            val timeLeftDisplay = IntervalHandler.instance?.timestampNextAction?.value?.minus(Clock.System.now())
             currentQuestion = "Current Question: $questionText\n" +
                     "Answer: ${QuestionHandler.instance?.currentQuestion?.value?.answer}\n" +
                     "Time left until " +
@@ -122,13 +120,22 @@ fun App() {
                 ) {
                     Button(
                         onClick = {
-                            startOrStopInterval()
+                            val intervalHandlerInstance = IntervalHandler.instance ?: run {
+                                JOptionPane.showMessageDialog(null, "Error with starting the interval. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
+                                logger.error("Error with starting the interval. Check the log for more infos!")
+                                exitProcess(0)
+                            }
+                            if(intervalHandlerInstance.intervalRunning.value) {
+                                intervalHandlerInstance.stopInterval()
+                            } else {
+                                intervalHandlerInstance.startInterval()
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                     ) {
                         Text(
-                            if (intervalRunning.value) {
+                            if (IntervalHandler.instance?.intervalRunning?.value == true) {
                                 "Stop"
                             } else {
                                 "Start"

@@ -2,7 +2,7 @@ package commands
 
 import Command
 import TwitchBotConfig
-import handler.IntervalHandler.timestampNextAction
+import handler.IntervalHandler
 import handler.QuestionHandler
 import kotlinx.datetime.Clock
 import kotlin.time.DurationUnit
@@ -10,7 +10,7 @@ import kotlin.time.DurationUnit
 val questionCommand: Command = Command(
     names = listOf("question", "q"),
     handler = {
-        val currentTimeLeft = timestampNextAction.value?.minus(Clock.System.now())
+        val currentTimeLeft = IntervalHandler.instance?.timestampNextAction?.value?.minus(Clock.System.now())
         chat.sendMessage(
             TwitchBotConfig.channel,
             "Question is: ${QuestionHandler.instance?.currentQuestion?.value?.questionText.run {
