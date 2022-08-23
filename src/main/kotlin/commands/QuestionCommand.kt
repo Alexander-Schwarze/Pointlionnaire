@@ -2,9 +2,9 @@ package commands
 
 import Command
 import TwitchBotConfig
+import handler.IntervalHandler.timestampNextAction
 import handler.QuestionHandler
 import kotlinx.datetime.Clock
-import timestampNextAction
 import kotlin.time.DurationUnit
 
 val questionCommand: Command = Command(

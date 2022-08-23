@@ -7,6 +7,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.github.tkuenneth.nativeparameterstoreaccess.NativeParameterStoreAccess
 import com.github.tkuenneth.nativeparameterstoreaccess.WindowsRegistry
+import handler.IntervalHandler.startOrStopInterval
+import handler.IntervalHandler.timestampNextAction
 import handler.QuestionHandler
 import handler.UserHandler
 import kotlinx.coroutines.delay
