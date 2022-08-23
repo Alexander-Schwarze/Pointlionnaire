@@ -62,6 +62,8 @@ fun App() {
                 UserHandler.getTop3Users().run {
                     leaderBoard = "First: ${this[0]?.name}\nSecond: ${this[1]?.name ?: "No one"}\nThird: ${this[2]?.name ?: "No one"}"
                 }
+            } else {
+                leaderBoard = "No leaderboard available yet"
             }
 
             val questionText = QuestionHandler.instance?.currentQuestion?.value?.questionText

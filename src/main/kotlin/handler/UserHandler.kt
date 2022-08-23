@@ -65,6 +65,7 @@ object UserHandler {
     }
 
     fun resetUsers() {
+        logger.info("Resetting all previous user data")
         leaderBoard.clear()
         winner = null
         tieBreakUsers.clear()

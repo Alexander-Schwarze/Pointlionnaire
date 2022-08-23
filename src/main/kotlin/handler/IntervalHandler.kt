@@ -1,5 +1,6 @@
 package handler
 
+import TwitchBotConfig
 import TwitchChatHandler.chat
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -65,14 +66,16 @@ class IntervalHandler private constructor (
 
     fun stopInterval() {
         if(currentInterval != null) {
+            logger.info("Current interval getting stopped by force")
             currentInterval!!.cancel()
             timestampNextAction.value = null
             intervalRunning.value = false
             QuestionHandler.instance?.resetQuestions()
             RedeemHandler.instance?.resetRedeems()
             UserHandler.resetUsers()
+            chat?.sendMessage(TwitchBotConfig.channel, "Interval was force stopped, what happened? ${TwitchBotConfig.somethingWentWrongEmote}")
         } else {
-            logger.error("currentInterval is null. Something went wrong")
+            logger.error("currentInterval is null and cannot be stopped. Something went wrong")
         }
     }
 
@@ -300,6 +303,7 @@ class IntervalHandler private constructor (
                 )
             }
 
+            logger.info("Current interval ended.")
         }
     }
 }

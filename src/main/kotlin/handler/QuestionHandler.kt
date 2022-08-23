@@ -127,12 +127,13 @@ class QuestionHandler private constructor(
     }
 
     fun resetCurrentQuestion() {
-        logger.info("Resetting question")
+        logger.info("Resetting current question and amount tries")
         currentQuestion.value = emptyQuestion
         amountTriesCurrentQuestionPerUser.clear()
     }
 
     fun resetQuestions() {
+        logger.info("Resetting all previous questions data")
         resetCurrentQuestion()
         askedQuestions.clear()
     }
