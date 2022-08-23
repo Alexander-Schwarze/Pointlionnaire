@@ -48,4 +48,9 @@ class RedeemHandler private constructor(
 
         return redeems.random().also { usedRolls++ }
     }
+
+    fun resetRedeems() {
+        logger.info("Resetting all previous redeem data")
+        usedRolls = 0
+    }
 }

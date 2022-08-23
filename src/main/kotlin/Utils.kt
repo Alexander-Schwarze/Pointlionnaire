@@ -1,3 +1,4 @@
+import com.github.twitch4j.chat.TwitchChat
 import kotlinx.serialization.Serializable
 import org.jetbrains.annotations.Nullable
 import java.io.OutputStream
@@ -28,3 +29,7 @@ data class Question (
     val isLast2Questions: Boolean,
     val isTieBreakerQuestion: Boolean
 )
+
+object TwitchChatHandler {
+    var chat: TwitchChat? = null
+}

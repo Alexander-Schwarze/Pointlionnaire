@@ -1,5 +1,4 @@
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
@@ -10,17 +9,13 @@ import androidx.compose.ui.window.application
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential
 import com.github.twitch4j.TwitchClient
 import com.github.twitch4j.TwitchClientBuilder
-import com.github.twitch4j.chat.TwitchChat
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent
 import com.github.twitch4j.common.enums.CommandPermission
-import commands.helpCommand
-import commands.redeemCommand
+import handler.IntervalHandler
 import handler.QuestionHandler
 import handler.RedeemHandler
-import handler.UserHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -34,7 +29,6 @@ import java.nio.file.Paths
 import java.time.format.DateTimeFormatterBuilder
 import javax.swing.JOptionPane
 import kotlin.system.exitProcess
-import kotlin.time.Duration.Companion.seconds
 
 
 val logger: Logger = LoggerFactory.getLogger("Bot")
@@ -44,23 +38,13 @@ val json = Json {
     prettyPrint = true
 }
 
-var intervalRunning = mutableStateOf(false)
-
 suspend fun main() = try {
     setupLogging()
-    val twitchClient = setupTwitchBot()
-    if(!intervalHandler(twitchClient.chat)){
-        JOptionPane.showMessageDialog(null, "Error with starting the interval. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
-        logger.error("Error with starting the interval. Check the log for more infos!")
-        exitProcess(0)
-    }
 
-    // TODO: This check should be somewhere else, but not in the RedeemCommand. Though the redeem command is the first place where they are used
-    if(RedeemHandler.instance == null) {
-        JOptionPane.showMessageDialog(null, "Error with reading the redeems. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
-        logger.error("Error with setting up the redeems. Check the log for more infos!")
-        exitProcess(0)
-    }
+    sanityCheckHandlers()
+
+    val twitchClient = setupTwitchBot()
+    TwitchChatHandler.chat = twitchClient.chat
 
     application {
         DisposableEffect(Unit) {
@@ -168,6 +152,32 @@ private suspend fun setupTwitchBot(): TwitchClient {
     return twitchClient
 }
 
+<<<<<<< HEAD
+=======
+fun sanityCheckHandlers() {
+    // TODO: This check should be somewhere else, but not in the RedeemCommand. Though the redeem command is the first place where they are used
+    if(RedeemHandler.instance == null) {
+        JOptionPane.showMessageDialog(null, "Error with reading the redeems. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
+        logger.error("Error with setting up the redeems. Check the log for more infos!")
+        exitProcess(0)
+    }
+
+    // TODO: This check should be somewhere else, but not in the App's UI. Though the App's button is the first place where this is used
+    if(QuestionHandler.instance == null) {
+        JOptionPane.showMessageDialog(null, "Error with reading the questions. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
+        logger.error("Error with setting up the questions. Check the log for more infos!")
+        exitProcess(0)
+    }
+
+    // TODO: This check should be somewhere else, but not in the App's UI. Though the App's button is the first place where this is used
+    if(IntervalHandler.instance == null) {
+        JOptionPane.showMessageDialog(null, "Error with setting up the interval handler. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
+        logger.error("Error with setting up the interval handler. Check the log for more infos!")
+        exitProcess(0)
+    }
+}
+
+>>>>>>> Interval_Refactor
 private const val LOG_DIRECTORY = "logs"
 
 fun setupLogging() {
