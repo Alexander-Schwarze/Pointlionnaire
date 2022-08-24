@@ -10,8 +10,10 @@ import com.github.tkuenneth.nativeparameterstoreaccess.WindowsRegistry
 import handler.IntervalHandler
 import handler.QuestionHandler
 import handler.UserHandler
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlin.concurrent.timer
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
@@ -69,12 +71,12 @@ fun App() {
                 leaderBoard = "No leaderboard available yet"
             }
 
-            val questionText = QuestionHandler.instance?.currentQuestion?.value?.questionText
+            val questionText = QuestionHandler.instance.currentQuestion.value?.questionText
             val timeLeftDisplay = IntervalHandler.instance?.timestampNextAction?.value?.minus(Clock.System.now())
             currentQuestion = "Current Question: $questionText\n" +
-                    "Answer: ${QuestionHandler.instance?.currentQuestion?.value?.answer}\n" +
+                    "Answer: ${QuestionHandler.instance.currentQuestion.value?.answer}\n" +
                     "Time left until " +
-                    if (questionText != QuestionHandler.instance?.emptyQuestion?.questionText) {
+                    if (questionText != null) {
                         "answering ends: "
                     } else {
                         "next question: "
@@ -104,7 +106,7 @@ fun App() {
                     .padding(24.dp)
                     .fillMaxSize()
             ) {
-                Row() {
+                Row {
                     Text(
                         text = currentQuestion
                     )

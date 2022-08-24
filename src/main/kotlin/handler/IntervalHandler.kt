@@ -130,7 +130,8 @@ class IntervalHandler private constructor(
                 )
                 delay(delayBeforeQuestion)
 
-                val currentQuestion = questionHandlerInstance?.popRandomQuestion().also {
+                questionHandlerInstance.nextQuestion()
+                val currentQuestion = questionHandlerInstance.currentQuestion.value.also {
                     if (it != null) {
                         logger.info("Current question: ${it.questionText} | Current answer: ${it.answer}")
                     }
@@ -153,7 +154,7 @@ class IntervalHandler private constructor(
                 logger.info("Answer duration is over")
 
                 logger.info("Updating leaderboard")
-                questionHandlerInstance?.getCurrentLeaderboard()?.forEachIndexed { index, user ->
+                questionHandlerInstance.currentLeaderboard.value.forEachIndexed { index, user ->
                     points[index]?.let { currentPoints ->
                         if (currentQuestion != null) {
                             UserHandler.updateLeaderBoard(user, currentPoints.run {
@@ -167,9 +168,9 @@ class IntervalHandler private constructor(
                     }
                 }
 
-                questionHandlerInstance?.resetCurrentQuestion()
+                questionHandlerInstance.resetCurrentQuestion()
 
-                if (questionHandlerInstance?.askedQuestions?.size == TwitchBotConfig.amountQuestions) {
+                if (questionHandlerInstance.askedQuestions?.size == TwitchBotConfig.amountQuestions) {
                     break
                 }
 
@@ -213,10 +214,11 @@ class IntervalHandler private constructor(
                     timestampNextAction.value = Clock.System.now() + delayBeforeQuestion
                     delay(delayBeforeQuestion)
 
+                    questionHandlerInstance.nextTieBreakerQuestion()
                     chat?.sendMessage(
                         TwitchBotConfig.channel,
                         "——————————————————————" +
-                                (questionHandlerInstance?.popRandomTieBreakerQuestion().also {
+                                (questionHandlerInstance.currentQuestion.value.also {
                                     if (it != null) {
                                         logger.info("Current question: ${it.questionText} | Current answer: ${it.answer}")
                                     }
@@ -234,7 +236,7 @@ class IntervalHandler private constructor(
                     logger.info("Answer duration is over")
 
                     logger.info("Updating leaderboard...")
-                    questionHandlerInstance?.getCurrentLeaderboard()?.forEachIndexed { index, user ->
+                    questionHandlerInstance.currentLeaderboard.value.forEachIndexed { index, user ->
                         points[index]?.let { currentPoints ->
                             UserHandler.updateLeaderBoard(user, currentPoints)
                         }

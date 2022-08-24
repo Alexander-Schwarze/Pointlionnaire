@@ -41,14 +41,12 @@ Before executing the program, you need a folder "data" on the same level as the 
     ```json
     [
       {
-        "id": 0,
         "questionText": "This is test question 1",
         "answer": "Test answer one",
         "isLast2Questions": false,
         "isTieBreakerQuestion": false
       },
       {
-        "id": 1,
         "questionText": "This is test question 2",
         "answer": "Test answer two",
         "isLast2Questions": false,
@@ -58,7 +56,6 @@ Before executing the program, you need a folder "data" on the same level as the 
     ```
   Keep in mind that the questions are JSON-Objects bracketed in ``{}`` and those objects are inside an array bracketed in ``[]`` <br>
   * Short explanation for each field:
-    * id: Question's ID, Integer. Should be unique and positive. Negative IDs will be ignored.
     * questionText: Question's text, String. 
     * answer: Question's answer, String.
     * isLast2Questions: Flag if a questions only gets asked as last two questions, Boolean. Last two questions bring doubled points.

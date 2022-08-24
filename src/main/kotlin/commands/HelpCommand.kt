@@ -1,7 +1,7 @@
 package commands
 
 import Command
-import Config.BuildInfo
+import config.BuildInfo
 import TwitchBotConfig
 import commands
 
@@ -10,8 +10,8 @@ val helpCommand: Command = Command(
     handler = {
         chat.sendMessage(TwitchBotConfig.channel,
             "Bot Version ${BuildInfo.version}. " +
-                    "Available commands: " +
-                    "${commands.joinToString("; ") { command -> command.names.joinToString("|") { "${TwitchBotConfig.commandPrefix}${it}" } }}."
+            "Available commands: " +
+            "${commands.joinToString("; ") { command -> command.names.joinToString("|") { "${TwitchBotConfig.commandPrefix}$it" } }}."
         )
     }
 )

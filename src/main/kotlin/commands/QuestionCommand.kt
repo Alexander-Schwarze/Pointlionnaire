@@ -14,9 +14,9 @@ val questionCommand: Command = Command(
         chat.sendMessage(
             TwitchBotConfig.channel,
             "Question is: ${
-                QuestionHandler.instance?.currentQuestion?.value?.questionText.run {
-                    "$this. " +
-                            if (this.equals(QuestionHandler.instance?.emptyQuestion?.questionText)) {
+                QuestionHandler.instance.currentQuestion.value?.questionText.let {
+                    "$it. " +
+                            if (it == null) {
                                 "Time until next question comes up: "
                             } else {
                                 "Time until answer duration is over: "
