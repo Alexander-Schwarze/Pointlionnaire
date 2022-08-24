@@ -1,5 +1,4 @@
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -49,7 +48,10 @@ suspend fun main() = try {
     application {
         DisposableEffect(Unit) {
             onDispose {
-                twitchClient.chat.sendMessage(TwitchBotConfig.channel, "Bot shutting down ${TwitchBotConfig.leaveEmote}")
+                twitchClient.chat.sendMessage(
+                    TwitchBotConfig.channel,
+                    "Bot shutting down ${TwitchBotConfig.leaveEmote}"
+                )
                 logger.info("App shutting down...")
             }
         }
@@ -65,7 +67,12 @@ suspend fun main() = try {
         }
     }
 } catch (e: Throwable) {
-    JOptionPane.showMessageDialog(null, e.message + "\n" + StringWriter().also { e.printStackTrace(PrintWriter(it)) }, "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
+    JOptionPane.showMessageDialog(
+        null,
+        e.message + "\n" + StringWriter().also { e.printStackTrace(PrintWriter(it)) },
+        "InfoBox: File Debugger",
+        JOptionPane.INFORMATION_MESSAGE
+    )
     logger.error("Error while executing program.", e)
     exitProcess(0)
 }
@@ -106,22 +113,29 @@ private suspend fun setupTwitchBot(): TwitchClient {
             return@onEvent
         }
 
-        if(messageEvent.user.name in TwitchBotConfig.blacklistedUsers || messageEvent.user.id in TwitchBotConfig.blacklistedUsers){
+        if (messageEvent.user.name in TwitchBotConfig.blacklistedUsers || messageEvent.user.id in TwitchBotConfig.blacklistedUsers) {
             twitchClient.chat.sendMessage(
                 TwitchBotConfig.channel,
                 "Imagine not being a blacklisted user. Couldn't be you ${messageEvent.user.name} ${TwitchBotConfig.blacklistEmote}"
             )
-            if(messageEvent.user.id !in TwitchBotConfig.blacklistedUsers) {
+            if (messageEvent.user.id !in TwitchBotConfig.blacklistedUsers) {
                 logger.warn("Blacklisted user ${messageEvent.user.name} tried using a command. Please use following ID in the properties file instead of the name: ${messageEvent.user.id}")
             }
             return@onEvent
         }
 
-        logger.info("User '${messageEvent.user.name}' tried using command '${command.names.first()}' with arguments: ${parts.drop(1).joinToString()}")
+        logger.info(
+            "User '${messageEvent.user.name}' tried using command '${command.names.first()}' with arguments: ${
+                parts.drop(
+                    1
+                ).joinToString()
+            }"
+        )
 
-        val nextAllowedCommandUsageInstant = nextAllowedCommandUsageInstantPerUser.getOrPut(command to messageEvent.user.name) {
-            Clock.System.now()
-        }
+        val nextAllowedCommandUsageInstant =
+            nextAllowedCommandUsageInstantPerUser.getOrPut(command to messageEvent.user.name) {
+                Clock.System.now()
+            }
 
         if ((Clock.System.now() - nextAllowedCommandUsageInstant).isNegative() && CommandPermission.MODERATOR !in messageEvent.permissions) {
             val secondsUntilTimeoutOver = nextAllowedCommandUsageInstant - Clock.System.now()
@@ -144,7 +158,8 @@ private suspend fun setupTwitchBot(): TwitchClient {
             command.handler(commandHandlerScope, parts.drop(1))
 
             val key = command to messageEvent.user.name
-            nextAllowedCommandUsageInstantPerUser[key] = nextAllowedCommandUsageInstantPerUser[key]!! + commandHandlerScope.addedUserCooldown
+            nextAllowedCommandUsageInstantPerUser[key] =
+                nextAllowedCommandUsageInstantPerUser[key]!! + commandHandlerScope.addedUserCooldown
         }
     }
 
@@ -154,22 +169,37 @@ private suspend fun setupTwitchBot(): TwitchClient {
 
 fun sanityCheckHandlers() {
     // TODO: This check should be somewhere else, but not in the RedeemCommand. Though the redeem command is the first place where they are used
-    if(RedeemHandler.instance == null) {
-        JOptionPane.showMessageDialog(null, "Error with reading the redeems. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
+    if (RedeemHandler.instance == null) {
+        JOptionPane.showMessageDialog(
+            null,
+            "Error with reading the redeems. Check the log for more infos!",
+            "InfoBox: File Debugger",
+            JOptionPane.INFORMATION_MESSAGE
+        )
         logger.error("Error with setting up the redeems. Check the log for more infos!")
         exitProcess(0)
     }
 
     // TODO: This check should be somewhere else, but not in the App's UI. Though the App's button is the first place where this is used
-    if(QuestionHandler.instance == null) {
-        JOptionPane.showMessageDialog(null, "Error with reading the questions. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
+    if (QuestionHandler.instance == null) {
+        JOptionPane.showMessageDialog(
+            null,
+            "Error with reading the questions. Check the log for more infos!",
+            "InfoBox: File Debugger",
+            JOptionPane.INFORMATION_MESSAGE
+        )
         logger.error("Error with setting up the questions. Check the log for more infos!")
         exitProcess(0)
     }
 
     // TODO: This check should be somewhere else, but not in the App's UI. Though the App's button is the first place where this is used
-    if(IntervalHandler.instance == null) {
-        JOptionPane.showMessageDialog(null, "Error with setting up the interval handler. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
+    if (IntervalHandler.instance == null) {
+        JOptionPane.showMessageDialog(
+            null,
+            "Error with setting up the interval handler. Check the log for more infos!",
+            "InfoBox: File Debugger",
+            JOptionPane.INFORMATION_MESSAGE
+        )
         logger.error("Error with setting up the interval handler. Check the log for more infos!")
         exitProcess(0)
     }

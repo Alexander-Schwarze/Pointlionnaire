@@ -5,7 +5,6 @@ import TwitchChatHandler.chat
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import backgroundCoroutineScope
-import com.github.twitch4j.helix.domain.User
 import commands.helpCommand
 import commands.redeemCommand
 import kotlinx.coroutines.Job
@@ -17,11 +16,10 @@ import logger
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-class IntervalHandler private constructor (
+class IntervalHandler private constructor(
     private val durationUntilNextQuestion: Duration,
     private val points: Map<Int, Int>
 ) {
-
     companion object {
         val instance = run {
 
@@ -59,7 +57,7 @@ class IntervalHandler private constructor (
     private var currentInterval: Job? = null
 
     fun stopInterval() {
-        if(currentInterval != null) {
+        if (currentInterval != null) {
             logger.info("Current interval getting stopped by force")
             currentInterval!!.cancel()
             timestampNextAction.value = null
@@ -67,7 +65,10 @@ class IntervalHandler private constructor (
             QuestionHandler.instance?.resetQuestions()
             RedeemHandler.instance?.resetRedeems()
             UserHandler.resetUsers()
-            chat?.sendMessage(TwitchBotConfig.channel, "Interval was force stopped, what happened? ${TwitchBotConfig.somethingWentWrongEmote}")
+            chat?.sendMessage(
+                TwitchBotConfig.channel,
+                "Interval was force stopped, what happened? ${TwitchBotConfig.somethingWentWrongEmote}"
+            )
         } else {
             logger.error("currentInterval is null and cannot be stopped. Something went wrong")
         }
@@ -77,10 +78,10 @@ class IntervalHandler private constructor (
         intervalRunning.value = true
         currentInterval = backgroundCoroutineScope.launch {
             while (true) {
-                timestampNextAction.value =
-                    Clock.System.now() + explanationDelays.sumOf { it.inWholeSeconds }.seconds + Companion.delayBeforeQuestion
                 logger.info("Interval running. Amount of asked questions: ${questionHandlerInstance?.askedQuestions?.size}")
                 if (questionHandlerInstance?.askedQuestions?.isEmpty() == true) {
+                    timestampNextAction.value =
+                        Clock.System.now() + explanationDelays.sumOf { it.inWholeSeconds }.seconds + delayBeforeQuestion
 
                     logger.info("Interval is starting. Sending the info messages.")
                     chat?.sendMessage(
@@ -122,12 +123,12 @@ class IntervalHandler private constructor (
                     delay(explanationDelays[2])
                 }
 
-                timestampNextAction.value = Clock.System.now() + Companion.delayBeforeQuestion
+                timestampNextAction.value = Clock.System.now() + delayBeforeQuestion
                 chat?.sendMessage(
                     TwitchBotConfig.channel,
                     "Tighten your seatbelts, the question is coming up!"
                 )
-                delay(Companion.delayBeforeQuestion)
+                delay(delayBeforeQuestion)
 
                 val currentQuestion = questionHandlerInstance?.popRandomQuestion().also {
                     if (it != null) {
@@ -174,10 +175,10 @@ class IntervalHandler private constructor (
 
                 chat?.sendMessage(
                     TwitchBotConfig.channel,
-                    "Next question will be in ${durationUntilNextQuestion + Companion.delayBeforeQuestion}"
+                    "Next question will be in ${durationUntilNextQuestion + delayBeforeQuestion}"
                 )
 
-                timestampNextAction.value = Clock.System.now() + durationUntilNextQuestion + Companion.delayBeforeQuestion
+                timestampNextAction.value = Clock.System.now() + durationUntilNextQuestion + delayBeforeQuestion
                 delay(durationUntilNextQuestion)
 
             }
@@ -190,7 +191,7 @@ class IntervalHandler private constructor (
                     "Oh oh! Looks like we have a tie ${TwitchBotConfig.tieEmote}"
                 )
 
-                timestampNextAction.value = Clock.System.now() + 10.seconds * 2 + Companion.delayBeforeQuestion
+                timestampNextAction.value = Clock.System.now() + 10.seconds * 2 + delayBeforeQuestion
                 delay(10.seconds)
                 logger.info("Tie breaker users: ${UserHandler.tieBreakUsers.joinToString(" | ")}")
                 chat?.sendMessage(
@@ -209,8 +210,8 @@ class IntervalHandler private constructor (
                         TwitchBotConfig.channel,
                         "${UserHandler.tieBreakUsers.joinToString { it.name }} - Get Ready! The question is coming up!"
                     )
-                    timestampNextAction.value = Clock.System.now() + Companion.delayBeforeQuestion
-                    delay(Companion.delayBeforeQuestion)
+                    timestampNextAction.value = Clock.System.now() + delayBeforeQuestion
+                    delay(delayBeforeQuestion)
 
                     chat?.sendMessage(
                         TwitchBotConfig.channel,
@@ -247,10 +248,10 @@ class IntervalHandler private constructor (
 
                     chat?.sendMessage(
                         TwitchBotConfig.channel,
-                        "No one got it right? Well... next question will be in ${durationUntilNextTieQuestion + Companion.delayBeforeQuestion}"
+                        "No one got it right? Well... next question will be in ${durationUntilNextTieQuestion + delayBeforeQuestion}"
                     )
                     timestampNextAction.value =
-                        Clock.System.now() + durationUntilNextTieQuestion + Companion.delayBeforeQuestion
+                        Clock.System.now() + durationUntilNextTieQuestion + delayBeforeQuestion
                     delay(durationUntilNextTieQuestion)
                 }
             }

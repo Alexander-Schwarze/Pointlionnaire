@@ -1,4 +1,3 @@
-
 import com.github.twitch4j.chat.TwitchChat
 import com.github.twitch4j.common.events.domain.EventUser
 import commands.answerCommand

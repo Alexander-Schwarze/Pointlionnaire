@@ -12,9 +12,7 @@ import handler.QuestionHandler
 import handler.UserHandler
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
-import javax.swing.JOptionPane
 import kotlin.concurrent.timer
-import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
@@ -33,6 +31,7 @@ val darkColorPalette = darkColors(
     background = Color.DarkGray,
     onBackground = Color.White,
 )
+
 @Composable
 @Preview
 fun App() {
@@ -41,7 +40,10 @@ fun App() {
     LaunchedEffect(Unit) {
         while (true) {
             isInDarkMode = if (NativeParameterStoreAccess.IS_WINDOWS) {
-                WindowsRegistry.getWindowsRegistryEntry("HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", "AppsUseLightTheme") == 0x0
+                WindowsRegistry.getWindowsRegistryEntry(
+                    "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+                    "AppsUseLightTheme"
+                ) == 0x0
             } else {
                 false
             }
@@ -58,9 +60,10 @@ fun App() {
             period = 0.5.seconds.inWholeMilliseconds,
             daemon = true
         ) {
-            if(UserHandler.getTop3Users().isNotEmpty()){
+            if (UserHandler.getTop3Users().isNotEmpty()) {
                 UserHandler.getTop3Users().run {
-                    leaderBoard = "First: ${this[0]?.name}\nSecond: ${this[1]?.name ?: "No one"}\nThird: ${this[2]?.name ?: "No one"}"
+                    leaderBoard =
+                        "First: ${this[0]?.name}\nSecond: ${this[1]?.name ?: "No one"}\nThird: ${this[2]?.name ?: "No one"}"
                 }
             } else {
                 leaderBoard = "No leaderboard available yet"
@@ -71,12 +74,12 @@ fun App() {
             currentQuestion = "Current Question: $questionText\n" +
                     "Answer: ${QuestionHandler.instance?.currentQuestion?.value?.answer}\n" +
                     "Time left until " +
-                    if(questionText != QuestionHandler.instance?.emptyQuestion?.questionText){
+                    if (questionText != QuestionHandler.instance?.emptyQuestion?.questionText) {
                         "answering ends: "
                     } else {
                         "next question: "
                     } +
-                    if(timeLeftDisplay == null || timeLeftDisplay.inWholeMilliseconds < 0) {
+                    if (timeLeftDisplay == null || timeLeftDisplay.inWholeMilliseconds < 0) {
                         "No Timer Running"
                     } else {
                         timeLeftDisplay.toString(DurationUnit.SECONDS, 0)
@@ -122,15 +125,11 @@ fun App() {
                 ) {
                     Button(
                         onClick = {
-                            val intervalHandlerInstance = IntervalHandler.instance ?: run {
-                                JOptionPane.showMessageDialog(null, "Error with starting the interval. Check the log for more infos!", "InfoBox: File Debugger", JOptionPane.INFORMATION_MESSAGE)
-                                logger.error("Error with starting the interval. Check the log for more infos!")
-                                exitProcess(0)
-                            }
-                            if(intervalHandlerInstance.intervalRunning.value) {
+                            val intervalHandlerInstance = IntervalHandler.instance
+                            if (intervalHandlerInstance?.intervalRunning?.value == true) {
                                 intervalHandlerInstance.stopInterval()
                             } else {
-                                intervalHandlerInstance.startInterval()
+                                intervalHandlerInstance?.startInterval()
                             }
                         },
                         modifier = Modifier

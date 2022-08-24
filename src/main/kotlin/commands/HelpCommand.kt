@@ -9,8 +9,9 @@ val helpCommand: Command = Command(
     names = listOf("help"),
     handler = {
         chat.sendMessage(TwitchBotConfig.channel,
-    "Bot Version ${BuildInfo.version}. " +
-            "Available commands: " +
-            "${commands.joinToString("; ") { command -> command.names.joinToString("|") { "${TwitchBotConfig.commandPrefix}${it}" } }}.")
+            "Bot Version ${BuildInfo.version}. " +
+                    "Available commands: " +
+                    "${commands.joinToString("; ") { command -> command.names.joinToString("|") { "${TwitchBotConfig.commandPrefix}${it}" } }}."
+        )
     }
 )

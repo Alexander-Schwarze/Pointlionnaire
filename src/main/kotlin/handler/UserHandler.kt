@@ -11,7 +11,7 @@ object UserHandler {
 
     fun updateLeaderBoard(user: EventUser, points: Int) {
         val currentPoints = leaderBoard[user]
-        val newPoints = if(currentPoints != null){
+        val newPoints = if (currentPoints != null) {
             currentPoints + points
         } else {
             points
@@ -23,23 +23,27 @@ object UserHandler {
 
     fun getTop3Users(): List<EventUser?> {
         val sortedList = leaderBoard.toList().sortedByDescending { it.second }
-        return if(sortedList.isEmpty()) {
+        return if (sortedList.isEmpty()) {
             listOf()
         } else {
             listOf(
                 sortedList[0].first,
-                try{
+                try {
                     sortedList[1].first
-                } catch (e: Exception) {null},
-                try{
+                } catch (e: Exception) {
+                    null
+                },
+                try {
                     sortedList[2].first
-                } catch (e: Exception) {null}
+                } catch (e: Exception) {
+                    null
+                }
             )
         }
     }
 
     fun getTieBreakerUser(): List<EventUser> {
-        return if(leaderBoard.toList().isEmpty()) {
+        return if (leaderBoard.toList().isEmpty()) {
             listOf()
         } else {
             leaderBoard.toList().filter {
@@ -57,7 +61,7 @@ object UserHandler {
     }
 
     fun setWinner() {
-        winner = if(leaderBoard.toList().isEmpty()) {
+        winner = if (leaderBoard.toList().isEmpty()) {
             null
         } else {
             leaderBoard.toList().sortedByDescending { it.second }[0].first

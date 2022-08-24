@@ -37,19 +37,20 @@ class QuestionHandler private constructor(
                 }
             }
 
-            if(
+            if (
                 questions.filter { !it.isTieBreakerQuestion }.size < TwitchBotConfig.amountQuestions ||
                 questions.filter { !it.isLast2Questions && !it.isTieBreakerQuestion }.size < TwitchBotConfig.amountQuestions - 2 ||
                 questions.filter { it.isLast2Questions && !it.isTieBreakerQuestion }.size < 2 ||
                 questions.none { it.isTieBreakerQuestion }
-            ){
+            ) {
                 // TODO: Remove this as soon as questions can be added via UI
                 logger.error("There was an error with given questions. As for version 1.0.0, you cannot set questions in the UI. Thus they need to be added before app start in the json-file.")
-                logger.info("You need: " +
-                        "At least ${TwitchBotConfig.amountQuestions} total questions who are no tiebreaker questions. " +
-                        "At least ${TwitchBotConfig.amountQuestions - 2} questions which are neither tiebreaker nor last 2 questions. " +
-                        "At least 2 questions which are last 2 questions and no tiebreaker. " +
-                        "At least 1 tiebreaker question."
+                logger.info(
+                    "You need: " +
+                            "At least ${TwitchBotConfig.amountQuestions} total questions who are no tiebreaker questions. " +
+                            "At least ${TwitchBotConfig.amountQuestions - 2} questions which are neither tiebreaker nor last 2 questions. " +
+                            "At least 2 questions which are last 2 questions and no tiebreaker. " +
+                            "At least 1 tiebreaker question."
                 )
                 return@run null
             }
@@ -58,19 +59,25 @@ class QuestionHandler private constructor(
         }
     }
 
-    val emptyQuestion = Question(id = -1, questionText = TwitchBotConfig.noQuestionPendingText, answer = "None", isLast2Questions = false, isTieBreakerQuestion = false)
+    val emptyQuestion = Question(
+        id = -1,
+        questionText = TwitchBotConfig.noQuestionPendingText,
+        answer = "None",
+        isLast2Questions = false,
+        isTieBreakerQuestion = false
+    )
     val currentQuestion = MutableStateFlow(emptyQuestion)
 
     val askedQuestions = mutableMapOf<Question, /* leader board: */ List<EventUser>>()
     private val amountTriesCurrentQuestionPerUser = mutableMapOf<EventUser, /* amount tries: */ Int>()
 
     fun popRandomQuestion(): Question {
-        return if(isLastTwoQuestions()) {
-            questions.filter{
+        return if (isLastTwoQuestions()) {
+            questions.filter {
                 it.isLast2Questions
             }
         } else {
-            questions.filter{
+            questions.filter {
                 !it.isLast2Questions
             }
         }.filter {
@@ -82,7 +89,7 @@ class QuestionHandler private constructor(
     }
 
     fun popRandomTieBreakerQuestion(): Question {
-        if(questions.none { it !in askedQuestions && it.isTieBreakerQuestion }) {
+        if (questions.none { it !in askedQuestions && it.isTieBreakerQuestion }) {
             askedQuestions.clear()
         }
 
@@ -97,7 +104,7 @@ class QuestionHandler private constructor(
     fun updateCurrentQuestionsLeaderboard(user: EventUser) {
         val newLeaderboard = (askedQuestions[currentQuestion.value] ?: listOf()).toMutableList()
 
-        if(newLeaderboard.size == 3 || user in newLeaderboard) {
+        if (newLeaderboard.size == 3 || user in newLeaderboard) {
             return
         }
 
@@ -111,11 +118,11 @@ class QuestionHandler private constructor(
     }
 
     fun checkAnswer(answer: String, user: EventUser): Boolean {
-        return if(amountTriesCurrentQuestionPerUser[user] == maxAmountTries){
+        return if (amountTriesCurrentQuestionPerUser[user] == maxAmountTries) {
             logger.info("User ${user.name} has exceeded their tries")
             false
         } else {
-            if(amountTriesCurrentQuestionPerUser[user] == null) {
+            if (amountTriesCurrentQuestionPerUser[user] == null) {
                 amountTriesCurrentQuestionPerUser[user] = 1
             } else {
                 amountTriesCurrentQuestionPerUser[user] = amountTriesCurrentQuestionPerUser[user]!! + 1

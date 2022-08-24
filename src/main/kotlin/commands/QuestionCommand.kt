@@ -13,15 +13,17 @@ val questionCommand: Command = Command(
         val currentTimeLeft = IntervalHandler.instance?.timestampNextAction?.value?.minus(Clock.System.now())
         chat.sendMessage(
             TwitchBotConfig.channel,
-            "Question is: ${QuestionHandler.instance?.currentQuestion?.value?.questionText.run {
-                        "$this. " +   
-                        if(this.equals(QuestionHandler.instance?.emptyQuestion?.questionText)) {
-                            "Time until next question comes up: "
-                        } else {
-                            "Time until answer duration is over: "
-                        }
-                    }}" +
-                    if(currentTimeLeft == null || currentTimeLeft.inWholeMilliseconds < 0) {
+            "Question is: ${
+                QuestionHandler.instance?.currentQuestion?.value?.questionText.run {
+                    "$this. " +
+                            if (this.equals(QuestionHandler.instance?.emptyQuestion?.questionText)) {
+                                "Time until next question comes up: "
+                            } else {
+                                "Time until answer duration is over: "
+                            }
+                }
+            }" +
+                    if (currentTimeLeft == null || currentTimeLeft.inWholeMilliseconds < 0) {
                         "No Timer Running"
                     } else {
                         currentTimeLeft.toString(DurationUnit.SECONDS, 0)

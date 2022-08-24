@@ -28,7 +28,7 @@ class RedeemHandler private constructor(
                 }
             }
 
-            if(redeems.isEmpty()){
+            if (redeems.isEmpty()) {
                 // TODO: Remove this as soon as redeems can be added via UI
                 logger.error("There are no existing redeems. As for version 1.0.0, you cannot set redeems in the UI. Thus they need to be added before app start in the json-file.")
                 return@run null
@@ -41,7 +41,7 @@ class RedeemHandler private constructor(
     private var usedRolls = 0
 
     fun popRandomRedeem(): String? {
-        if(usedRolls > TwitchBotConfig.maximumRolls){
+        if (usedRolls > TwitchBotConfig.maximumRolls) {
             logger.info("No more rolls available. Aborting...")
             return null
         }

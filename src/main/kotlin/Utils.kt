@@ -1,6 +1,5 @@
 import com.github.twitch4j.chat.TwitchChat
 import kotlinx.serialization.Serializable
-import org.jetbrains.annotations.Nullable
 import java.io.OutputStream
 
 class MultiOutputStream(private vararg val streams: OutputStream) : OutputStream() {
@@ -21,7 +20,7 @@ class MultiOutputStream(private vararg val streams: OutputStream) : OutputStream
 }
 
 @Serializable
-data class Question (
+data class Question(
     val id: Int,
     val questionText: String,
     // TODO: because answers should be to lower case, answers have to be vars so they can be set (i don't know how to do this with a val)

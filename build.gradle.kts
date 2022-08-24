@@ -3,10 +3,11 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.6.10"
+    val kotlinVersion: String by System.getProperties()
+
     kotlin("jvm") version kotlinVersion
-    id("org.jetbrains.compose") version "1.1.1"
     kotlin("plugin.serialization") version kotlinVersion
+    id("org.jetbrains.compose") version "1.2.0-alpha01-dev770"
 }
 
 group = "alex.donut.pointlionnaire"
@@ -45,8 +46,12 @@ tasks.withType<KotlinCompile> {
 compose.desktop {
     application {
         mainClass = "MainKt"
+
         nativeDistributions {
+            modules("jdk.unsupported")
+
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+
             packageName = "Pointlionnaire"
             packageVersion = version.toString()
         }
