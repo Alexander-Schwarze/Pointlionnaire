@@ -61,7 +61,7 @@ suspend fun main() = try {
         }
 
         Window(
-            state = WindowState(size = DpSize(500.dp, 250.dp)),
+            state = WindowState(size = DpSize(800.dp, 400.dp)),
             title = "Pointlionnaire",
             onCloseRequest = ::exitApplication,
             icon = painterResource("icon.ico"),
