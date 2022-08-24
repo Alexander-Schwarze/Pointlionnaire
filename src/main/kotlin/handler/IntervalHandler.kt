@@ -96,7 +96,7 @@ class IntervalHandler private constructor(
                         """.trimIndent()
                     )
 
-                    delay(explanationDelays[0])
+                    //delay(explanationDelays[0])
 
                     twitchChat.sendMessage(
                         TwitchBotConfig.channel,
@@ -106,7 +106,7 @@ class IntervalHandler private constructor(
                         """.trimIndent()
                     )
 
-                    delay(explanationDelays[1])
+                    //delay(explanationDelays[1])
 
                     twitchChat.sendMessage(
                         TwitchBotConfig.channel,
@@ -116,7 +116,7 @@ class IntervalHandler private constructor(
                         """
                     )
 
-                    delay(explanationDelays[2])
+                    //delay(explanationDelays[2])
                 }
 
                 timestampNextAction.value = Clock.System.now() + delayBeforeQuestion
@@ -183,7 +183,7 @@ class IntervalHandler private constructor(
 
             }
 
-            if (UserHandler.getTieBreakerUser().size > 1) {
+            if (UserHandler.getTieBreakerUsers().size > 1) {
                 logger.info("First users are tied. Starting tie breaker handling")
                 twitchChat.sendMessage(
                     TwitchBotConfig.channel,
@@ -192,11 +192,11 @@ class IntervalHandler private constructor(
 
                 timestampNextAction.value = Clock.System.now() + 10.seconds * 2 + delayBeforeQuestion
                 delay(10.seconds)
-                logger.info("Tie breaker users: ${UserHandler.getTieBreakerUser().joinToString(" | ")}")
+                logger.info("Tie breaker users: ${UserHandler.getTieBreakerUsers().joinToString(" | ")}")
                 twitchChat.sendMessage(
                     TwitchBotConfig.channel,
                     "The users ${
-                        UserHandler.getTieBreakerUser().map { it.name }.let { users ->
+                        UserHandler.getTieBreakerUsers().map { it.name }.let { users ->
                             listOf(users.dropLast(1).joinToString(), users.last()).filter { it.isNotBlank() }
                                 .joinToString(" and ")
                         }
@@ -207,7 +207,9 @@ class IntervalHandler private constructor(
                 while (true) {
                     twitchChat.sendMessage(
                         TwitchBotConfig.channel,
-                        "${UserHandler.getTieBreakerUser().joinToString { it.name }} - Get Ready! The question is coming up!"
+                        "${
+                            UserHandler.getTieBreakerUsers().joinToString { it.name }
+                        } - Get Ready! The question is coming up!"
                     )
                     timestampNextAction.value = Clock.System.now() + delayBeforeQuestion
                     delay(delayBeforeQuestion)
@@ -218,12 +220,12 @@ class IntervalHandler private constructor(
                         """
                             ——————————————————————
                             ${
-                                questionHandlerInstance.currentQuestion.value.also {
-                                    if (it != null) {
-                                        logger.info("Current question: ${it.questionText} | Current answer: ${it.answer}")
-                                    }
-                                }?.questionText
-                            }
+                            questionHandlerInstance.currentQuestion.value.also {
+                                if (it != null) {
+                                    logger.info("Current question: ${it.questionText} | Current answer: ${it.answer}")
+                                }
+                            }?.questionText
+                        }
                             ——————————————————————
                         """.trimIndent()
                     )
@@ -246,7 +248,7 @@ class IntervalHandler private constructor(
 
                     questionHandlerInstance.resetCurrentQuestion()
 
-                    if (UserHandler.getTieBreakerUser().size == 1) {
+                    if (UserHandler.getTieBreakerUsers().size == 1) {
                         break
                     }
 
@@ -278,11 +280,17 @@ class IntervalHandler private constructor(
                 delay(4.seconds)
 
                 val leaderBoard = UserHandler.getTop3Users().also {
-                    logger.info("Leaderboard at the end: First: ${it[0].name}, Second: ${it[1].name}, Third: ${it[2].name}")
+                    logger.info(
+                        "Leaderboard at the end: First: ${it.getOrNull(0)?.name ?: "No One"}, " +
+                        "Second: ${it.getOrNull(1)?.name ?: "No One"}, " +
+                        "Third: ${it.getOrNull(2)?.name ?: "No One"}"
+                    )
                 }
                 twitchChat.sendMessage(
                     TwitchBotConfig.channel,
-                    "The Top 3 leaderboard: First: ${leaderBoard[0].name ?: "No one"}, Second: ${leaderBoard[1].name ?: "No one"}, Third: ${leaderBoard[2].name ?: "No one"}"
+                    "The Top 3 leaderboard: First: ${leaderBoard.getOrNull(0)?.name ?: "No One"}, " +
+                            "Second: ${leaderBoard.getOrNull(1)?.name ?: "No One"}, " +
+                            "Third: ${leaderBoard.getOrNull(2)?.name ?: "No One"}"
                 )
 
                 delay(5.seconds)

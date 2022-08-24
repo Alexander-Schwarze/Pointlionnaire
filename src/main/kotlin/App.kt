@@ -10,10 +10,8 @@ import com.github.tkuenneth.nativeparameterstoreaccess.WindowsRegistry
 import handler.IntervalHandler
 import handler.QuestionHandler
 import handler.UserHandler
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlin.concurrent.timer
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
@@ -65,16 +63,20 @@ fun App() {
             if (UserHandler.getTop3Users().isNotEmpty()) {
                 UserHandler.getTop3Users().run {
                     leaderBoard =
-                        "First: ${this[0]?.name}\nSecond: ${this[1]?.name ?: "No one"}\nThird: ${this[2]?.name ?: "No one"}"
+                        """
+                            First: ${this[0].name}
+                            Second: ${this.getOrNull(1)?.name ?: "No one"}
+                            Third: ${this.getOrNull(2)?.name ?: "No one"}
+                        """.trimIndent()
                 }
             } else {
                 leaderBoard = "No leaderboard available yet"
             }
 
             val questionText = QuestionHandler.instance.currentQuestion.value?.questionText
-            val timeLeftDisplay = IntervalHandler.instance?.timestampNextAction?.value?.minus(Clock.System.now())
-            currentQuestion = "Current Question: $questionText\n" +
-                    "Answer: ${QuestionHandler.instance.currentQuestion.value?.answer}\n" +
+            val timeLeftDisplay = IntervalHandler.instance.timestampNextAction.value?.minus(Clock.System.now())
+            currentQuestion = "Current Question: ${questionText ?: TwitchBotConfig.noQuestionPendingText }\n" +
+                    "Answer: ${QuestionHandler.instance.currentQuestion.value?.answer ?: "None"}\n" +
                     "Time left until " +
                     if (questionText != null) {
                         "answering ends: "
@@ -128,17 +130,17 @@ fun App() {
                     Button(
                         onClick = {
                             val intervalHandlerInstance = IntervalHandler.instance
-                            if (intervalHandlerInstance?.intervalRunning?.value == true) {
+                            if (intervalHandlerInstance.intervalRunning.value) {
                                 intervalHandlerInstance.stopInterval()
                             } else {
-                                intervalHandlerInstance?.startInterval()
+                                intervalHandlerInstance.startInterval()
                             }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                     ) {
                         Text(
-                            if (IntervalHandler.instance?.intervalRunning?.value == true) {
+                            if (IntervalHandler.instance.intervalRunning.value) {
                                 "Stop"
                             } else {
                                 "Start"

@@ -8,6 +8,7 @@ This project idea comes from Donut [twitch.tv/adonutirl](https://www.twitch.tv/a
 * You need a token from a twitch account so the bot can use it.
 * Keep in mind that the compiled executable can do anything on your PC. The code is openly accessible and can be reviewed in this repository, yet I will take no blame if something goes wrong.
 * As of Version 1.0.0, it is not possible to set questions/redeems via UI (this feature is planned for Version 2.0.0). There are two JSON-Files that hold the information. You need to manually edit them. More information is below.
+* As of Version 1.0.0, the interval/app has to keep running at the end so the winner can use the redeem-command. If you restart the app/interval, it will not be possible for them to redeem. Make sure to wait for the redeems to get popped.
 
 ### Setup
 Before executing the program, you need a folder "data" on the same level as the executable with following files and their contents:

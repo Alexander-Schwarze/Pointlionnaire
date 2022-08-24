@@ -25,16 +25,24 @@ object UserHandler {
         .take(3)
         .map { it.key }
 
-    fun getTieBreakerUser(): List<EventUser> = leaderBoard.entries
-        .maxBy { it.value }
-        .let { (_, maxPoints) ->
-            leaderBoard.entries.filter { it.value == maxPoints }.map { it.key }
+    fun getTieBreakerUsers(): List<EventUser> {
+        return if (leaderBoard.toList().isEmpty()) {
+            listOf()
+        } else {
+            leaderBoard.toList().filter {
+                it.second == leaderBoard.toList().sortedByDescending { userPoints -> userPoints.second }[0].second
+            }.map { it.first }
         }
+    }
 
-    val isTieBreaker get() = getTieBreakerUser().size > 1
+    val isTieBreaker get() = getTieBreakerUsers().size > 1
 
     fun setWinner() {
-        winner = leaderBoard.entries.maxBy { it.value }.key
+        winner = if (leaderBoard.isEmpty()) {
+            null
+        } else {
+            leaderBoard.toList().sortedByDescending { it.second }[0].first
+        }
     }
 
     fun resetUsers() {

@@ -10,12 +10,12 @@ val answerCommand = Command(
     handler = {
         val answer = it.joinToString(" ").lowercase(Locale.getDefault())
 
-        if (QuestionHandler.instance?.currentQuestion?.value != QuestionHandler.instance?.emptyQuestion) {
-            if (UserHandler.isTieBreaker() && user !in UserHandler.tieBreakUsers) {
+        if (QuestionHandler.instance.currentQuestion.value != null) {
+            if (UserHandler.isTieBreaker && user !in UserHandler.getTieBreakerUsers()) {
                 return@Command
             }
 
-            if (QuestionHandler.instance?.checkAnswer(answer, user) == true) {
+            if (QuestionHandler.instance.checkAnswer(answer, user)) {
                 QuestionHandler.instance.updateCurrentQuestionsLeaderboard(user)
             }
         }

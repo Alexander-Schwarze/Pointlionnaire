@@ -10,12 +10,12 @@ import kotlin.time.DurationUnit
 val questionCommand: Command = Command(
     names = listOf("question", "q"),
     handler = {
-        val currentTimeLeft = IntervalHandler.instance?.timestampNextAction?.value?.minus(Clock.System.now())
+        val currentTimeLeft = IntervalHandler.instance.timestampNextAction.value?.minus(Clock.System.now())
         chat.sendMessage(
             TwitchBotConfig.channel,
             "Question is: ${
                 QuestionHandler.instance.currentQuestion.value?.questionText.let {
-                    "$it. " +
+                    "${it ?: TwitchBotConfig.noQuestionPendingText}. " +
                             if (it == null) {
                                 "Time until next question comes up: "
                             } else {
