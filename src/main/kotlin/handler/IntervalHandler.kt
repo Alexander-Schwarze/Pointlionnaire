@@ -62,7 +62,7 @@ class IntervalHandler private constructor(
             currentInterval!!.cancel()
             timestampNextAction.value = null
             intervalRunning.value = false
-            QuestionHandler.instance?.resetQuestions()
+            QuestionHandler.instance.resetQuestions()
             RedeemHandler.instance?.resetRedeems()
             UserHandler.resetUsers()
             chat?.sendMessage(
@@ -186,7 +186,6 @@ class IntervalHandler private constructor(
 
             if (UserHandler.getTieBreakerUser().size > 1) {
                 logger.info("First users are tied. Starting tie breaker handling")
-                UserHandler.setTieBreakerUser()
                 chat?.sendMessage(
                     TwitchBotConfig.channel,
                     "Oh oh! Looks like we have a tie ${TwitchBotConfig.tieEmote}"
@@ -194,11 +193,11 @@ class IntervalHandler private constructor(
 
                 timestampNextAction.value = Clock.System.now() + 10.seconds * 2 + delayBeforeQuestion
                 delay(10.seconds)
-                logger.info("Tie breaker users: ${UserHandler.tieBreakUsers.joinToString(" | ")}")
+                logger.info("Tie breaker users: ${UserHandler.getTieBreakerUser().joinToString(" | ")}")
                 chat?.sendMessage(
                     TwitchBotConfig.channel,
                     "The users ${
-                        UserHandler.tieBreakUsers.map { it.name }.let { users ->
+                        UserHandler.getTieBreakerUser().map { it.name }.let { users ->
                             listOf(users.dropLast(1).joinToString(), users.last()).filter { it.isNotBlank() }
                                 .joinToString(" and ")
                         }
@@ -209,7 +208,7 @@ class IntervalHandler private constructor(
                 while (true) {
                     chat?.sendMessage(
                         TwitchBotConfig.channel,
-                        "${UserHandler.tieBreakUsers.joinToString { it.name }} - Get Ready! The question is coming up!"
+                        "${UserHandler.getTieBreakerUser().joinToString { it.name }} - Get Ready! The question is coming up!"
                     )
                     timestampNextAction.value = Clock.System.now() + delayBeforeQuestion
                     delay(delayBeforeQuestion)

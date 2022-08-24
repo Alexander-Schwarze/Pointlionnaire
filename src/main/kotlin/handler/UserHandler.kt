@@ -7,7 +7,6 @@ object UserHandler {
     private val leaderBoard = mutableMapOf<EventUser, /* points: */ Int>()
     var winner: EventUser? = null // holds the user that had the most points. Until the game is over, it stays null
         private set
-    val tieBreakUsers = mutableListOf<EventUser>()
 
     fun updateLeaderBoard(user: EventUser, points: Int) {
         val currentPoints = leaderBoard[user]
@@ -21,57 +20,26 @@ object UserHandler {
         logger.info("Leaderboard updated. New Leaderboard: $leaderBoard")
     }
 
-    fun getTop3Users(): List<EventUser?> {
-        val sortedList = leaderBoard.toList().sortedByDescending { it.second }
-        return if (sortedList.isEmpty()) {
-            listOf()
-        } else {
-            listOf(
-                sortedList[0].first,
-                try {
-                    sortedList[1].first
-                } catch (e: Exception) {
-                    null
-                },
-                try {
-                    sortedList[2].first
-                } catch (e: Exception) {
-                    null
-                }
-            )
+    fun getTop3Users(): List<EventUser> = leaderBoard.entries
+        .sortedByDescending { it.value }
+        .take(3)
+        .map { it.key }
+
+    fun getTieBreakerUser(): List<EventUser> = leaderBoard.entries
+        .maxBy { it.value }
+        .let { (_, maxPoints) ->
+            leaderBoard.entries.filter { it.value == maxPoints }.map { it.key }
         }
-    }
 
-    fun getTieBreakerUser(): List<EventUser> {
-        return if (leaderBoard.toList().isEmpty()) {
-            listOf()
-        } else {
-            leaderBoard.toList().filter {
-                it.second == leaderBoard.toList().sortedByDescending { userPoints -> userPoints.second }[0].second
-            }.map { it.first }
-        }
-    }
-
-    fun setTieBreakerUser() {
-        tieBreakUsers.addAll(getTieBreakerUser())
-    }
-
-    fun isTieBreaker(): Boolean {
-        return tieBreakUsers.isNotEmpty()
-    }
+    val isTieBreaker get() = getTieBreakerUser().size > 1
 
     fun setWinner() {
-        winner = if (leaderBoard.toList().isEmpty()) {
-            null
-        } else {
-            leaderBoard.toList().sortedByDescending { it.second }[0].first
-        }
+        winner = leaderBoard.entries.maxBy { it.value }.key
     }
 
     fun resetUsers() {
         logger.info("Resetting all previous user data")
         leaderBoard.clear()
         winner = null
-        tieBreakUsers.clear()
     }
 }

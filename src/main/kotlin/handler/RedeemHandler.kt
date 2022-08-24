@@ -16,6 +16,7 @@ class RedeemHandler private constructor(
             val redeems = if (!questionsFile.exists()) {
                 questionsFile.createNewFile()
                 logger.info("Redeems file created.")
+
                 setOf()
             } else {
                 try {
