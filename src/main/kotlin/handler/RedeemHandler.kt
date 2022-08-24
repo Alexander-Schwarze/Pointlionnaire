@@ -10,7 +10,7 @@ class RedeemHandler private constructor(
     private val redeems: Set<String>
 ) {
     companion object {
-        val instance = run {
+        val instance by lazy {
             val questionsFile = File("data/redeems.json")
 
             val redeems = if (!questionsFile.exists()) {
@@ -32,7 +32,7 @@ class RedeemHandler private constructor(
             if (redeems.isEmpty()) {
                 // TODO: Remove this as soon as redeems can be added via UI
                 logger.error("There are no existing redeems. As for version 1.0.0, you cannot set redeems in the UI. Thus they need to be added before app start in the json-file.")
-                return@run null
+                throw ExceptionInInitializerError()
             }
 
             RedeemHandler(redeems)

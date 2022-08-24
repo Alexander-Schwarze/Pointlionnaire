@@ -8,6 +8,7 @@ import androidx.compose.ui.window.application
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential
 import com.github.twitch4j.TwitchClient
 import com.github.twitch4j.TwitchClientBuilder
+import com.github.twitch4j.chat.TwitchChat
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent
 import com.github.twitch4j.common.enums.CommandPermission
 import handler.IntervalHandler
@@ -15,7 +16,6 @@ import handler.QuestionHandler
 import handler.RedeemHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -33,6 +33,7 @@ import kotlin.system.exitProcess
 
 val logger: Logger = LoggerFactory.getLogger("Bot")
 val backgroundCoroutineScope = CoroutineScope(Dispatchers.IO)
+lateinit var twitchChat: TwitchChat
 
 val json = Json {
     prettyPrint = true
@@ -41,15 +42,17 @@ val json = Json {
 suspend fun main() = try {
     setupLogging()
 
-    sanityCheckHandlers()
+    IntervalHandler.instance
+    QuestionHandler.instance
+    RedeemHandler.instance
 
     val twitchClient = setupTwitchBot()
-    TwitchChatHandler.chat = twitchClient.chat
+    twitchChat = twitchClient.chat
 
     application {
         DisposableEffect(Unit) {
             onDispose {
-                twitchClient.chat.sendMessage(
+                twitchChat.sendMessage(
                     TwitchBotConfig.channel,
                     "Bot shutting down ${TwitchBotConfig.leaveEmote}"
                 )
@@ -166,44 +169,6 @@ private suspend fun setupTwitchBot(): TwitchClient {
 
     logger.info("Twitch client started.")
     return twitchClient
-}
-
-fun sanityCheckHandlers() {
-    // TODO: This check should be somewhere else, but not in the RedeemCommand. Though the redeem command is the first place where they are used
-    if (RedeemHandler.instance == null) {
-        JOptionPane.showMessageDialog(
-            null,
-            "Error with reading the redeems. Check the log for more infos!",
-            "InfoBox: File Debugger",
-            JOptionPane.INFORMATION_MESSAGE
-        )
-        logger.error("Error with setting up the redeems. Check the log for more infos!")
-        exitProcess(0)
-    }
-
-    // TODO: This check should be somewhere else, but not in the App's UI. Though the App's button is the first place where this is used
-    if (QuestionHandler.instance == null) {
-        JOptionPane.showMessageDialog(
-            null,
-            "Error with reading the questions. Check the log for more infos!",
-            "InfoBox: File Debugger",
-            JOptionPane.INFORMATION_MESSAGE
-        )
-        logger.error("Error with setting up the questions. Check the log for more infos!")
-        exitProcess(0)
-    }
-
-    // TODO: This check should be somewhere else, but not in the App's UI. Though the App's button is the first place where this is used
-    if (IntervalHandler.instance == null) {
-        JOptionPane.showMessageDialog(
-            null,
-            "Error with setting up the interval handler. Check the log for more infos!",
-            "InfoBox: File Debugger",
-            JOptionPane.INFORMATION_MESSAGE
-        )
-        logger.error("Error with setting up the interval handler. Check the log for more infos!")
-        exitProcess(0)
-    }
 }
 
 private const val LOG_DIRECTORY = "logs"

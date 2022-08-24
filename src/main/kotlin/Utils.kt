@@ -27,6 +27,8 @@ data class Question(
     val isTieBreakerQuestion: Boolean
 )
 
-object TwitchChatHandler {
-    var chat: TwitchChat? = null
+fun String.pluralForm(number: Int) = when {
+    number == 1 -> this
+    endsWith("y") -> "${substringBeforeLast("y")}ies"
+    else -> "${this}s"
 }
