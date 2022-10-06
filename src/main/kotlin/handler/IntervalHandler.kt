@@ -92,11 +92,11 @@ class IntervalHandler private constructor(
                             ${TwitchBotConfig.attentionEmote} Attention, Attention ${TwitchBotConfig.attentionEmote} The Quiz show is about to begin!
                             You wanna know how to participate? ${TwitchBotConfig.amountQuestions}
                             ${"question".pluralForm(TwitchBotConfig.amountQuestions)} will be asked during the next ${TwitchBotConfig.totalIntervalDuration} and 
-                            you have ${TwitchBotConfig.answerDuration} per question to answer! ${TwitchBotConfig.explanationEmote}"
+                            you have ${TwitchBotConfig.answerDuration} per question to answer! ${TwitchBotConfig.explanationEmote}
                         """.trimIndent()
                     )
 
-                    //delay(explanationDelays[0])
+                    delay(explanationDelays[0])
 
                     twitchChat.sendMessage(
                         TwitchBotConfig.channel,
@@ -106,7 +106,7 @@ class IntervalHandler private constructor(
                         """.trimIndent()
                     )
 
-                    //delay(explanationDelays[1])
+                    delay(explanationDelays[1])
 
                     twitchChat.sendMessage(
                         TwitchBotConfig.channel,
@@ -116,7 +116,7 @@ class IntervalHandler private constructor(
                         """
                     )
 
-                    //delay(explanationDelays[2])
+                    delay(explanationDelays[2])
                 }
 
                 timestampNextAction.value = Clock.System.now() + delayBeforeQuestion

@@ -57,7 +57,7 @@ fun App() {
 
     DisposableEffect(Unit) {
         val timer = timer(
-            period = 0.5.seconds.inWholeMilliseconds,
+            period = 1.seconds.inWholeMilliseconds,
             daemon = true
         ) {
             if (UserHandler.getTop3Users().isNotEmpty()) {
