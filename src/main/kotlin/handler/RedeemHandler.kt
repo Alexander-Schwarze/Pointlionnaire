@@ -42,7 +42,7 @@ class RedeemHandler private constructor(
     private var usedRolls = 0
 
     fun popRandomRedeem(): String? {
-        if (usedRolls > TwitchBotConfig.maximumRolls) {
+        if (exceededMaximumRolls()) {
             logger.info("No more rolls available. Aborting...")
             return null
         }
@@ -53,5 +53,9 @@ class RedeemHandler private constructor(
     fun resetRedeems() {
         logger.info("Resetting all previous redeem data")
         usedRolls = 0
+    }
+
+    fun exceededMaximumRolls(): Boolean {
+        return usedRolls > TwitchBotConfig.maximumRolls
     }
 }

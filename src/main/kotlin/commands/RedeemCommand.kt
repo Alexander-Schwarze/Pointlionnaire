@@ -13,8 +13,7 @@ val redeemCommand: Command = Command(
             return@Command
         }
 
-        val redeem = RedeemHandler.instance?.popRandomRedeem()
-        if (redeem == null) {
+        if (RedeemHandler.instance.exceededMaximumRolls()) {
             logger.info("No more rerolls left")
             chat.sendMessage(
                 TwitchBotConfig.channel,
@@ -23,7 +22,12 @@ val redeemCommand: Command = Command(
         } else {
             chat.sendMessage(
                 TwitchBotConfig.channel,
-                "Your redeem is: $redeem ${TwitchBotConfig.ggEmote}. If you don't like it, you can try another time!"
+                "Your redeem is: ${RedeemHandler.instance.popRandomRedeem()} ${TwitchBotConfig.ggEmote}" +
+                        if(!RedeemHandler.instance.exceededMaximumRolls()) {
+                            " If you don't like it, you can try another time!"
+                        } else {
+                            ""
+                        }
             )
         }
     }
