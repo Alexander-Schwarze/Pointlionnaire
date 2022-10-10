@@ -1,4 +1,3 @@
-import com.github.twitch4j.chat.TwitchChat
 import kotlinx.serialization.Serializable
 import java.io.OutputStream
 

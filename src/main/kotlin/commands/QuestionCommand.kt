@@ -5,7 +5,7 @@ import TwitchBotConfig
 import handler.IntervalHandler
 import handler.QuestionHandler
 import kotlinx.datetime.Clock
-import kotlin.time.DurationUnit
+import kotlin.time.Duration.Companion.seconds
 
 val questionCommand: Command = Command(
     names = listOf("question", "q"),
@@ -26,7 +26,7 @@ val questionCommand: Command = Command(
                     if (currentTimeLeft == null || currentTimeLeft.inWholeMilliseconds < 0) {
                         "No Timer Running"
                     } else {
-                        currentTimeLeft.toString(DurationUnit.SECONDS, 0)
+                        currentTimeLeft.inWholeSeconds.seconds
                     }
         )
     }

@@ -175,7 +175,7 @@ class IntervalHandler private constructor(
 
                 twitchChat.sendMessage(
                     TwitchBotConfig.channel,
-                    "Next question will be in ${durationUntilNextQuestion + delayBeforeQuestion}"
+                    "Next question will be in ${(durationUntilNextQuestion + delayBeforeQuestion).inWholeSeconds.seconds}"
                 )
 
                 timestampNextAction.value = Clock.System.now() + durationUntilNextQuestion + delayBeforeQuestion

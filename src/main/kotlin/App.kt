@@ -14,7 +14,6 @@ import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlin.concurrent.timer
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
 
 val lightColorPalette = lightColors(
     primary = Color(0xff4466ff),
@@ -86,7 +85,7 @@ fun App() {
                     if (timeLeftDisplay == null || timeLeftDisplay.inWholeMilliseconds < 0) {
                         "No Timer Running"
                     } else {
-                        timeLeftDisplay.toString(DurationUnit.SECONDS, 0)
+                        timeLeftDisplay.inWholeSeconds.seconds
                     }
         }
 
