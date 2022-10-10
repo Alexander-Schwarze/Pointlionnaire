@@ -4,6 +4,7 @@ import TwitchBotConfig
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import backgroundCoroutineScope
+import commands.answerCommand
 import commands.helpCommand
 import commands.redeemCommand
 import kotlinx.coroutines.Job
@@ -102,7 +103,8 @@ class IntervalHandler private constructor(
                         TwitchBotConfig.channel,
                         """
                             You will have ${TwitchBotConfig.maxAmountTries} ${"try".pluralForm(TwitchBotConfig.maxAmountTries)} to get the answer right. 
-                            Wanna know, how to answer? Type "${TwitchBotConfig.commandPrefix}${helpCommand.names.first()}" to see all commands!
+                            To answer, type "${TwitchBotConfig.commandPrefix}${answerCommand.names.first()}" or "${TwitchBotConfig.commandPrefix}${answerCommand.names[1]}" followed by a space and then the answer! 
+                            To see all commands, type "${TwitchBotConfig.commandPrefix}${helpCommand.names.first()}"
                         """.trimIndent()
                     )
 
